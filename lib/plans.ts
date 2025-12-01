@@ -16,8 +16,8 @@ export const PLANS: Plan[] = [
     price: 0,
     currency: "USD",
     interval: "month",
-    dailyLimit: 30,
-    features: ["30 scans per day", "Basic health scoring", "Product recommendations", "Mobile app access"],
+    dailyLimit: 5,
+    features: ["5 scans per day", "Basic health scoring", "Product recommendations", "Mobile app access"],
   },
   {
     id: "pro",

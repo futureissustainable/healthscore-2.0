@@ -22,7 +22,7 @@ export async function checkRateLimit(
   window: number = 24 * 60 * 60, // 24 hours in seconds
 ): Promise<RateLimitResult> {
   try {
-    const limit = customLimit || 30
+    const limit = customLimit || 5
     const key = `rate_limit:${identifier}`
 
     // Get current usage
@@ -57,7 +57,7 @@ export async function checkRateLimit(
   } catch (error) {
     console.error("[v0] Rate limit check failed:", error)
     // Fallback to allowing request
-    const limit = customLimit || 30
+    const limit = customLimit || 5
     return {
       success: true,
       limit,
@@ -96,7 +96,7 @@ export async function getUserUsage(identifier: string): Promise<{
   try {
     const key = `rate_limit:${identifier}`
     const used = ((await redis.get(key)) as number) || 0
-    const limit = 30
+    const limit = 5
     const remaining = Math.max(0, limit - used)
 
     console.log(`[v0] Current usage: ${used}/${limit}, remaining: ${remaining}`)
@@ -118,7 +118,7 @@ export async function getUserUsage(identifier: string): Promise<{
       used = Number.parseInt(localStorage.getItem(key) || "0")
     }
 
-    const limit = 30
+    const limit = 5
     const remaining = Math.max(0, limit - used)
 
     return {
