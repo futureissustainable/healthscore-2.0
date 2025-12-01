@@ -3,74 +3,17 @@ import { getServerSession } from "next-auth"
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit"
 import { authOptions, getUserByEmail } from "@/lib/auth"
 import { addScanToHistory } from "@/lib/db"
+import {
+  calculateHealthScore,
+  ProductAnalysisV2,
+  ScoringResult,
+  getCategoryFromScore
+} from "@/lib/scoring-engine"
+import { WARNING_FLAGS } from "@/lib/scoring-constants"
 
-// Types for the analysis
-interface ProductAnalysis {
-  isConsumerProduct: boolean
-  isBestInClass?: boolean | null
-  rejectionReason?: string | null
-  trustScore?: number | null
-  productName?: string | null
-  productCategory?: "Food" | "Beverage" | "PersonalCare" | null
-  processingLevel?:
-    | "Unprocessed/Minimally Processed"
-    | "Processed Culinary Ingredients"
-    | "Processed Foods"
-    | "Ultra-Processed Foods"
-    | null
-  harmfulAdditives?: {
-    hasArtificialSweeteners: boolean
-    hasIndustrialEmulsifiers: boolean
-    hasArtificialColorsFlavors: boolean
-  } | null
-  nutrientsPer100g?: {
-    calories: number
-    carbohydratesG: number
-    totalFatG: number
-    proteinG: number
-    addedSugarG: number
-    sodiumMg: number
-    saturatedFatG: number
-    unsaturatedFatG: number
-    fiberG: number
-  } | null
-  proteinQuality?: "High-Quality Whole-Food" | "High-Quality Plant-Based" | "None" | null
-  hasTransFat?: boolean | null
-  wholeFoodContentPercentage?: number | null
-  personalCareDetails?: {
-    harmfulIngredients: string[]
-    beneficialIngredients: string[]
-    hasFragrance: boolean
-    isCrueltyFree: boolean
-  } | null
-  healthierAddon?: {
-    productName: string
-    description: string
-    scoreBoost: number
-  } | null
-  topInCategory?: {
-    productName: string
-    description: string
-  } | null
-}
-
-interface ScoreResult {
-  finalScore: number
-  isBestInClass: boolean
-  trustScore: number
-  category: string
-  productName: string
-  breakdown: {
-    baseScore: number
-    adjustments: Array<{ reason: string; points: number }>
-  }
-  healthierAddon?: any
-  topInCategory?: any
-  nutrients?: any
-  overrideReason?: string | null
-  inDepthAnalysis?: InDepthAnalysis | null
-}
-
+// ============================================================================
+// TYPES
+// ============================================================================
 interface InDepthAnalysis {
   healthImpact: {
     shortTerm: string[]
@@ -93,12 +36,100 @@ interface InDepthAnalysis {
   scientificSources: string[]
 }
 
-async function analyzeProductWithGemini(textInput: string, base64Image?: string): Promise<ProductAnalysis> {
+// ============================================================================
+// AI PROMPT FOR PRODUCT ANALYSIS
+// ============================================================================
+const ANALYSIS_PROMPT = `You are HEALTHSCORE, an evidence-based product analyzer using the NRF9.3 + NOVA hybrid system. Analyze the product and respond ONLY with valid JSON in this exact format:
+
+{
+  "isConsumerProduct": boolean,
+  "rejectionReason": string | null,
+  "productName": string,
+  "productCategory": "Food" | "Beverage" | "PersonalCare",
+
+  "processingLevel": "Unprocessed/Minimally Processed" | "Processed Culinary Ingredients" | "Processed Foods" | "Ultra-Processed Foods",
+
+  "nutrientsPer100g": {
+    "calories": number,
+    "protein": number,
+    "totalFat": number,
+    "saturatedFat": number,
+    "unsaturatedFat": number,
+    "transFat": number,
+    "omega3": number,
+    "carbohydrates": number,
+    "fiber": number,
+    "addedSugar": number,
+    "sodium": number,
+    "vitaminA": number | null,
+    "vitaminC": number | null,
+    "vitaminE": number | null,
+    "calcium": number | null,
+    "iron": number | null,
+    "magnesium": number | null,
+    "potassium": number | null
+  },
+
+  "glycemicLoad": number | null,
+
+  "proteinSources": ["fatty_fish" | "legumes" | "nuts_seeds" | "tofu_tempeh" | "greek_yogurt" | "poultry" | "eggs" | "whey_protein" | "unprocessed_red_meat" | "processed_meat"] | null,
+
+  "fatSources": ["omega3_epa_dha" | "extra_virgin_olive_oil" | "omega3_ala" | "mufa_other" | "pufa_seed_oils" | "whole_egg_fat" | "dairy_fat" | "coconut_oil" | "butter" | "meat_saturated_fat" | "industrial_trans_fat" | "natural_trans_fat"] | null,
+
+  "additives": string[] | null,
+  "sweeteners": ["stevia" | "erythritol" | "xylitol" | "aspartame" | "sucralose" | "saccharin" | "acesulfame_k"] | null,
+
+  "isFermented": boolean,
+  "fermentationType": "kefir" | "kimchi" | "natto" | "sauerkraut_raw" | "miso_unpasteurized" | "greek_yogurt" | "kombucha" | "sourdough" | "pasteurized_fermented" | null,
+  "hasLiveCultures": boolean,
+
+  "polyphenolSources": ["sulforaphane" | "flavanols" | "anthocyanins" | "egcg" | "lycopene" | "resveratrol" | "quercetin" | "curcumin"] | null,
+
+  "wholeFoodPercentage": number,
+  "fruitVegPercentage": number,
+
+  "beverageType": "water" | "mineral_water" | "sparkling_water" | "herbal_tea" | "green_tea" | "black_coffee" | "coconut_water" | "diet_soda" | "sports_drink" | "fruit_juice" | "soda" | "energy_drink" | null,
+
+  "personalCareDetails": {
+    "harmfulIngredients": string[],
+    "beneficialIngredients": string[],
+    "hasFragrance": boolean,
+    "isCrueltyFree": boolean,
+    "isEWGVerified": boolean
+  } | null,
+
+  "healthierAlternative": {
+    "productName": string,
+    "description": string,
+    "estimatedScore": number
+  } | null,
+
+  "dataCompleteness": number
+}
+
+IMPORTANT GUIDELINES:
+1. Use NOVA classification accurately:
+   - Group 1 (Unprocessed): Fresh fruits, vegetables, eggs, plain meat, fish, milk
+   - Group 2 (Culinary): Oils, butter, sugar, salt, flour
+   - Group 3 (Processed): Canned vegetables, cheese, cured meats, fresh bread
+   - Group 4 (Ultra-Processed): Soft drinks, packaged snacks, instant noodles, reconstituted meat
+
+2. Be accurate with nutrient data - use per 100g values
+3. Identify protein and fat sources from ingredient list
+4. Detect additives: artificial colors, preservatives, emulsifiers, sweeteners
+5. For beverages, classify the type appropriately
+6. dataCompleteness should reflect how much nutritional info you could determine (0-100)
+
+Analyze the product objectively based on scientific evidence.`
+
+// ============================================================================
+// ANALYZE PRODUCT WITH GEMINI
+// ============================================================================
+async function analyzeProductWithGemini(
+  textInput: string,
+  base64Image?: string
+): Promise<ProductAnalysisV2> {
   console.log("[v0] Checking GEMINI_API_KEY availability...")
-  console.log(
-    "[v0] Environment keys available:",
-    Object.keys(process.env).filter((key) => key.includes("GEMINI")),
-  )
 
   const API_KEY = process.env.GEMINI_API_KEY
   if (!API_KEY) {
@@ -108,45 +139,34 @@ async function analyzeProductWithGemini(textInput: string, base64Image?: string)
 
   console.log("[v0] GEMINI_API_KEY found, length:", API_KEY.length)
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${API_KEY}`
-
-  const prompt = `You are ULTRASCORE, analyzing consumer products for health. Respond ONLY with valid JSON in this exact format:
-{
-  "isConsumerProduct": boolean,
-  "isBestInClass": boolean,
-  "rejectionReason": string | null,
-  "trustScore": number,
-  "productName": string,
-  "productCategory": "Food" | "Beverage" | "PersonalCare",
-  "processingLevel": "Unprocessed/Minimally Processed" | "Processed Culinary Ingredients" | "Processed Foods" | "Ultra-Processed Foods",
-  "harmfulAdditives": { "hasArtificialSweeteners": boolean, "hasIndustrialEmulsifiers": boolean, "hasArtificialColorsFlavors": boolean },
-  "nutrientsPer100g": { "calories": number, "carbohydratesG": number, "totalFatG": number, "proteinG": number, "addedSugarG": number, "sodiumMg": number, "saturatedFatG": number, "unsaturatedFatG": number, "fiberG": number },
-  "proteinQuality": "High-Quality Whole-Food" | "High-Quality Plant-Based" | "None",
-  "hasTransFat": boolean,
-  "wholeFoodContentPercentage": number,
-  "personalCareDetails": { "harmfulIngredients": string[], "beneficialIngredients": string[], "hasFragrance": boolean, "isCrueltyFree": boolean } | null,
-  "healthierAddon": { "productName": string, "description": string, "scoreBoost": number } | null,
-  "topInCategory": { "productName": string, "description": string } | null
-}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`
 
   const requestBody: any = {
-    contents: [{ parts: [{ text: prompt }, { text: `Product: ${textInput}` }] }],
-    generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
+    contents: [{
+      parts: [
+        { text: ANALYSIS_PROMPT },
+        { text: `Product to analyze: ${textInput}` }
+      ]
+    }],
+    generationConfig: {
+      responseMimeType: "application/json",
+      temperature: 0.1
+    }
   }
 
   if (base64Image) {
     requestBody.contents[0].parts.push({
       inline_data: {
         mime_type: "image/jpeg",
-        data: base64Image,
-      },
+        data: base64Image
+      }
     })
   }
 
   const response = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(requestBody),
+    body: JSON.stringify(requestBody)
   })
 
   if (!response.ok) {
@@ -156,7 +176,6 @@ async function analyzeProductWithGemini(textInput: string, base64Image?: string)
       console.error("Gemini API Error:", errorBody)
       errorMessage = `AI API request failed: ${errorBody.error?.message || response.statusText}`
     } catch (parseError) {
-      // If we can't parse the error as JSON, use the response text
       try {
         const errorText = await response.text()
         console.error("Gemini API Error (text):", errorText)
@@ -174,8 +193,9 @@ async function analyzeProductWithGemini(textInput: string, base64Image?: string)
     if (!data.candidates || data.candidates.length === 0) {
       throw new Error("AI returned no response. The input may have been blocked.")
     }
+
     const jsonString = data.candidates[0].content.parts[0].text
-    console.log("[v0] Raw AI response:", jsonString.substring(0, 200) + "...")
+    console.log("[v0] Raw AI response:", jsonString.substring(0, 300) + "...")
 
     let parsedJson
     try {
@@ -189,378 +209,53 @@ async function analyzeProductWithGemini(textInput: string, base64Image?: string)
     if (!parsedJson.isConsumerProduct) {
       throw new Error(parsedJson.rejectionReason || "The item is not a recognized consumer product.")
     }
-    return parsedJson
+
+    return parsedJson as ProductAnalysisV2
   } catch (e) {
     console.error("Failed to process AI response:", e)
     if (e instanceof Error && e.message.includes("consumer product")) {
-      throw e // Re-throw consumer product errors as-is
+      throw e
     }
     throw new Error("AI analysis failed. Please try again with a different product.")
   }
 }
 
-async function performCommonSenseCheck(productData: ProductAnalysis, initialScore: ScoreResult): Promise<ScoreResult> {
-  if (initialScore.finalScore < 20) return { ...initialScore, overrideReason: null }
+// ============================================================================
+// COMMON SENSE SAFETY CHECK
+// ============================================================================
+async function performCommonSenseCheck(
+  productData: ProductAnalysisV2,
+  initialScore: ScoringResult
+): Promise<ScoringResult> {
+  // Skip check for low scores
+  if (initialScore.finalScore < 20) {
+    return initialScore
+  }
 
   const API_KEY = process.env.GEMINI_API_KEY
   if (!API_KEY) {
     console.warn("Gemini API key not configured for common sense check")
-    return { ...initialScore, overrideReason: null }
+    return initialScore
   }
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${API_KEY}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`
 
-  const prompt = `You are a safety and common sense validation AI. Your task is to identify dangerously misleading health scores. The algorithm scores based on nutritional data but can be fooled by inedible or poisonous items (e.g., scoring 'Cyanide Water' as 100). Product Name: "${productData.productName}", Initial Score: ${initialScore.finalScore}/100. **Task:** Evaluate if the score is absurd or dangerous (Toxic, Inedible, etc.). **Response Format:** If plausible, respond ONLY with: {"isMisleading": false}. If dangerous, respond ONLY with: {"isMisleading": true, "correctedScore": 0, "reason": "A brief, user-facing explanation."}. Only override for clear, unambiguous cases of danger.`
+  const prompt = `You are a safety validation AI. Your task is to identify dangerously misleading health scores.
 
-  const requestBody = {
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: { responseMimeType: "application/json", temperature: 0.0 },
-  }
+Product Name: "${productData.productName}"
+Initial Score: ${initialScore.finalScore}/100
+Category: ${productData.productCategory}
 
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody),
-    })
+Task: Evaluate if this score is absurd or dangerous. Examples of problems:
+- Toxic/poisonous items scoring high (e.g., "Cyanide Water" at 100)
+- Non-food items being scored as food
+- Known dangerous products with high scores
 
-    if (!response.ok) {
-      console.warn("Common sense check failed, returning original score.")
-      return { ...initialScore, overrideReason: null }
-    }
+Response Format (JSON only):
+If score is reasonable: {"isMisleading": false}
+If dangerous/absurd: {"isMisleading": true, "correctedScore": 0, "reason": "Brief explanation"}
 
-    const data = await response.json()
-    const validation = JSON.parse(data.candidates[0].content.parts[0].text)
-
-    if (validation.isMisleading) {
-      console.warn(`Common sense override for "${productData.productName}". Reason: ${validation.reason}`)
-      return {
-        ...initialScore,
-        finalScore: validation.correctedScore,
-        category: "Avoid",
-        overrideReason: validation.reason,
-        healthierAddon: null,
-        topInCategory: null,
-        breakdown: {
-          baseScore: initialScore.breakdown.baseScore,
-          adjustments: [{ reason: `Safety Override: ${validation.reason}`, points: -100 }],
-        },
-      }
-    }
-
-    return { ...initialScore, overrideReason: null }
-  } catch (error) {
-    console.warn("Failed to perform common sense check. Returning original score.", error)
-    return { ...initialScore, overrideReason: null }
-  }
-}
-
-function calculateFoodScore(data: ProductAnalysis): ScoreResult {
-  const baseline = 50
-  let score = baseline
-  const adjustments: Array<{ reason: string; points: number }> = []
-  const nutrients = data.nutrientsPer100g || {}
-
-  const addAdjustment = (reason: string, points: number) => {
-    if (points !== 0) {
-      adjustments.push({ reason, points })
-      score += points
-    }
-  }
-
-  // Processing level adjustments
-  switch (data.processingLevel) {
-    case "Unprocessed/Minimally Processed":
-      addAdjustment("NOVA Group 1", 15)
-      break
-    case "Processed Culinary Ingredients":
-      addAdjustment("NOVA Group 2", 8)
-      break
-    case "Processed Foods":
-      addAdjustment("NOVA Group 3", 0)
-      break
-    case "Ultra-Processed Foods":
-      addAdjustment("NOVA Group 4", -8)
-      break
-  }
-
-  // Fruit and vegetable bonus
-  const fruitAndVegKeywords = [
-    "apple",
-    "banana",
-    "orange",
-    "strawberry",
-    "grape",
-    "avocado",
-    "tomato",
-    "potato",
-    "carrot",
-    "broccoli",
-    "spinach",
-    "lettuce",
-    "cucumber",
-    "pepper",
-    "onion",
-    "garlic",
-    "mango",
-    "pineapple",
-    "blueberry",
-    "raspberry",
-    "kale",
-    "celery",
-  ]
-  const productNameLower = data.productName?.toLowerCase() || ""
-  if (
-    data.processingLevel === "Unprocessed/Minimally Processed" &&
-    fruitAndVegKeywords.some((keyword) => productNameLower.includes(keyword))
-  ) {
-    addAdjustment("Whole Fruit/Vegetable", 5)
-  }
-
-  // Positive modifiers
-  let positivePoints = 0
-  const fiber = nutrients.fiberG ?? 0
-  if (fiber >= 6) positivePoints += 8
-  else if (fiber >= 3) positivePoints += 5
-  else if (fiber >= 1.5) positivePoints += 3
-
-  const unsatFat = nutrients.unsaturatedFatG ?? 0
-  const satFat = nutrients.saturatedFatG ?? 0
-  if (satFat > 0) {
-    const ratio = unsatFat / satFat
-    if (ratio >= 2.0) positivePoints += 5
-    else if (ratio >= 1.0) positivePoints += 3
-  } else if (unsatFat > 0) {
-    positivePoints += 3
-  }
-
-  if (data.proteinQuality === "High-Quality Whole-Food") positivePoints += 5
-  else if (data.proteinQuality === "High-Quality Plant-Based") positivePoints += 3
-
-  if ((data.wholeFoodContentPercentage ?? 0) >= 40) positivePoints += 3
-
-  addAdjustment("Positive Modifiers", Math.min(20, positivePoints))
-
-  // Negative modifiers
-  let negativePoints = 0
-  const sugar = nutrients.addedSugarG ?? 0
-  if (sugar > 22.5) negativePoints += 20
-  else if (sugar >= 15) negativePoints += 15
-  else if (sugar >= 5) negativePoints += 10
-  else if (sugar > 0) negativePoints += 5
-
-  const sodium = nutrients.sodiumMg ?? 0
-  if (sodium >= 600) negativePoints += 8
-  else if (sodium >= 300) negativePoints += 5
-  else if (sodium >= 120) negativePoints += 3
-
-  if (data.hasTransFat) negativePoints += 5
-
-  let additivePenalty = 0
-  if (data.harmfulAdditives?.hasArtificialSweeteners) additivePenalty += 3
-  if (data.harmfulAdditives?.hasIndustrialEmulsifiers) additivePenalty += 3
-  if (data.harmfulAdditives?.hasArtificialColorsFlavors) additivePenalty += 3
-  negativePoints += Math.min(5, additivePenalty)
-
-  addAdjustment("Negative Modifiers", -Math.min(30, negativePoints))
-
-  const standardScore = Math.round(score)
-
-  // Exceptional profile bonus for high scores
-  if (standardScore >= 80) {
-    let bonusPotential = 0
-    const protein = nutrients.proteinG ?? 0
-    if (protein > 25) bonusPotential += protein - 25
-    if (fiber > 10) bonusPotential += (fiber - 10) * 1.5
-    if (unsatFat > 20 && satFat < 4) bonusPotential += unsatFat - 20
-    if (sugar < 1) bonusPotential += 10
-    if (sodium < 50) bonusPotential += 10
-
-    if (bonusPotential > 0) {
-      const maxBonus = 19
-      const scalingFactor = 40
-      const bonusPoints = Math.round(maxBonus * (1 - Math.exp(-bonusPotential / scalingFactor)))
-      if (bonusPoints > 0) {
-        const finalExceptionalScore = 80 + bonusPoints
-        const pointsToAdd = finalExceptionalScore - standardScore
-        if (pointsToAdd > 0) {
-          addAdjustment("Exceptional Profile", pointsToAdd)
-        }
-      }
-    }
-  }
-
-  let finalScore = Math.max(0, Math.min(100, Math.round(score)))
-  const isBestInClass = data.isBestInClass === true
-
-  // Best in class bonus
-  if (isBestInClass && finalScore < 100) {
-    const bonusPoints = Math.min(10, 100 - finalScore)
-    if (bonusPoints > 0) {
-      addAdjustment("⭐ Best In Class", bonusPoints)
-      finalScore += bonusPoints
-    }
-  }
-
-  // Special case for water
-  if (productNameLower.includes("water") && (!nutrients || (nutrients.addedSugarG === 0 && nutrients.sodiumMg === 0))) {
-    return {
-      finalScore: 100,
-      isBestInClass: true,
-      trustScore: data.trustScore || 99,
-      category: "Excellent",
-      productName: data.productName || "Water",
-      breakdown: { baseScore: 100, adjustments: [] },
-      healthierAddon: null,
-      topInCategory: null,
-      nutrients: null,
-    }
-  }
-
-  // Determine category
-  let category: string
-  if (finalScore >= 90) category = "Excellent"
-  else if (finalScore >= 70) category = "Good"
-  else if (finalScore >= 50) category = "Moderate"
-  else if (finalScore >= 30) category = "Limit"
-  else category = "Avoid"
-
-  return {
-    finalScore,
-    isBestInClass,
-    trustScore: data.trustScore || 0,
-    category,
-    productName: data.productName || "Unknown Product",
-    breakdown: { baseScore: baseline, adjustments },
-    healthierAddon: data.healthierAddon || null,
-    topInCategory: data.topInCategory || null,
-    nutrients: data.nutrientsPer100g,
-  }
-}
-
-function calculatePersonalCareScore(data: ProductAnalysis): ScoreResult {
-  const baseline = 60
-  const adjustments: Array<{ reason: string; points: number }> = []
-  let score = baseline
-  const details = data.personalCareDetails
-
-  const addAdjustment = (reason: string, points: number) => {
-    adjustments.push({ reason, points })
-    score += points
-  }
-
-  if (details) {
-    details.harmfulIngredients?.forEach((ing) => {
-      if (/paraben/i.test(ing)) addAdjustment("Contains Parabens", -8)
-      else if (/sulfate|sls|sles/i.test(ing)) addAdjustment("Contains Sulfates", -3)
-      else if (/phthalate/i.test(ing)) addAdjustment("Contains Phthalates", -8)
-    })
-
-    if (details.hasFragrance) addAdjustment("Contains Synthetic Fragrance", -3)
-
-    details.beneficialIngredients?.forEach((ing) => {
-      if (/ceramide/i.test(ing)) addAdjustment("Contains Ceramides", 5)
-      else if (/vitamin e|tocopherol/i.test(ing)) addAdjustment("Contains Vitamin E", 3)
-    })
-
-    if (details.isCrueltyFree) addAdjustment("Cruelty-Free", 3)
-  }
-
-  let finalScore = Math.max(0, Math.min(100, Math.round(score)))
-  const isBestInClass = data.isBestInClass === true
-
-  // Best in class bonus
-  if (isBestInClass && finalScore < 100) {
-    const bonusPoints = Math.min(10, 100 - finalScore)
-    if (bonusPoints > 0) {
-      addAdjustment("⭐ Best In Class", bonusPoints)
-      finalScore += bonusPoints
-    }
-  }
-
-  // Determine category
-  let category: string
-  if (finalScore >= 90) category = "Excellent"
-  else if (finalScore >= 70) category = "Good"
-  else if (finalScore >= 50) category = "Moderate"
-  else if (finalScore >= 30) category = "Limit"
-  else category = "Avoid"
-
-  return {
-    finalScore,
-    isBestInClass,
-    trustScore: data.trustScore || 0,
-    category,
-    productName: data.productName || "Unknown Product",
-    breakdown: { baseScore: baseline, adjustments },
-    healthierAddon: data.healthierAddon || null,
-    topInCategory: data.topInCategory || null,
-    nutrients: null,
-  }
-}
-
-function calculateUltraScore(data: ProductAnalysis): ScoreResult {
-  if (!data.isConsumerProduct || !data.productCategory) {
-    throw new Error("Cannot calculate score for a non-consumer item.")
-  }
-
-  switch (data.productCategory) {
-    case "Food":
-    case "Beverage":
-      return calculateFoodScore(data)
-    case "PersonalCare":
-      return calculatePersonalCareScore(data)
-    default:
-      throw new Error(`Scoring not implemented for category: ${data.productCategory}`)
-  }
-}
-
-async function generateInDepthAnalysis(
-  productData: ProductAnalysis,
-  scoreData: ScoreResult
-): Promise<InDepthAnalysis | null> {
-  const API_KEY = process.env.GEMINI_API_KEY
-  if (!API_KEY) return null
-
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${API_KEY}`
-
-  const prompt = `You are a nutrition and health expert AI. Provide an in-depth analysis for the product "${productData.productName}" which scored ${scoreData.finalScore}/100.
-
-Product details:
-- Category: ${productData.productCategory}
-- Processing Level: ${productData.processingLevel}
-- Nutrients per 100g: ${JSON.stringify(productData.nutrientsPer100g)}
-- Has Trans Fat: ${productData.hasTransFat}
-- Harmful Additives: ${JSON.stringify(productData.harmfulAdditives)}
-
-Respond ONLY with valid JSON in this format:
-{
-  "healthImpact": {
-    "shortTerm": ["Effect 1", "Effect 2"],
-    "longTerm": ["Effect 1", "Effect 2"],
-    "benefits": ["Benefit 1", "Benefit 2"],
-    "concerns": ["Concern 1", "Concern 2"]
-  },
-  "ingredientBreakdown": [
-    {
-      "name": "Ingredient name",
-      "purpose": "Why it's in the product",
-      "safetyRating": "Safe" | "Generally Safe" | "Use Caution" | "Avoid",
-      "details": "More information about this ingredient"
-    }
-  ],
-  "comparisonToAlternatives": [
-    {
-      "productName": "Alternative product",
-      "score": 85,
-      "keyDifference": "Why this alternative is better/worse"
-    }
-  ],
-  "personalizedAdvice": "Specific advice for consuming this product",
-  "scientificSources": ["Source 1", "Source 2"]
-}
-
-Provide honest, scientifically-backed analysis. Include 3-5 key ingredients and 2-3 alternatives.`
+Only override for clear, unambiguous cases of danger. Do NOT override just because a product is unhealthy - that's what low scores are for.`
 
   try {
     const response = await fetch(API_URL, {
@@ -568,8 +263,109 @@ Provide honest, scientifically-backed analysis. Include 3-5 key ingredients and 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json", temperature: 0.3 },
-      }),
+        generationConfig: { responseMimeType: "application/json", temperature: 0.0 }
+      })
+    })
+
+    if (!response.ok) {
+      console.warn("Common sense check failed, returning original score.")
+      return initialScore
+    }
+
+    const data = await response.json()
+    const validation = JSON.parse(data.candidates[0].content.parts[0].text)
+
+    if (validation.isMisleading) {
+      console.warn(`Safety override for "${productData.productName}". Reason: ${validation.reason}`)
+      return {
+        ...initialScore,
+        finalScore: validation.correctedScore,
+        category: "Avoid",
+        grade: "F",
+        warnings: [...initialScore.warnings, `Safety Override: ${validation.reason}`],
+        breakdown: {
+          ...initialScore.breakdown,
+          adjustments: [
+            ...initialScore.breakdown.adjustments,
+            {
+              category: "Safety Override",
+              reason: validation.reason,
+              points: -100,
+              evidenceWeight: 1.0
+            }
+          ]
+        }
+      }
+    }
+
+    return initialScore
+  } catch (error) {
+    console.warn("Failed to perform common sense check:", error)
+    return initialScore
+  }
+}
+
+// ============================================================================
+// GENERATE IN-DEPTH ANALYSIS (For paid users)
+// ============================================================================
+async function generateInDepthAnalysis(
+  productData: ProductAnalysisV2,
+  scoreData: ScoringResult
+): Promise<InDepthAnalysis | null> {
+  const API_KEY = process.env.GEMINI_API_KEY
+  if (!API_KEY) return null
+
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`
+
+  const prompt = `You are a nutrition and health expert AI providing in-depth analysis using evidence-based research.
+
+Product: "${productData.productName}"
+Score: ${scoreData.finalScore}/100 (${scoreData.category})
+Category: ${productData.productCategory}
+Processing Level: ${productData.processingLevel}
+Key Warnings: ${scoreData.warnings.join(", ") || "None"}
+
+Provide detailed analysis in this JSON format:
+{
+  "healthImpact": {
+    "shortTerm": ["Immediate effects from consuming this product"],
+    "longTerm": ["Effects of regular consumption over months/years"],
+    "benefits": ["Positive health aspects"],
+    "concerns": ["Potential health risks"]
+  },
+  "ingredientBreakdown": [
+    {
+      "name": "Ingredient name",
+      "purpose": "Why it's in the product",
+      "safetyRating": "Safe" | "Generally Safe" | "Use Caution" | "Avoid",
+      "details": "Scientific information about this ingredient"
+    }
+  ],
+  "comparisonToAlternatives": [
+    {
+      "productName": "Healthier alternative",
+      "score": 85,
+      "keyDifference": "Why this alternative is better"
+    }
+  ],
+  "personalizedAdvice": "Specific, actionable advice for consuming this product",
+  "scientificSources": ["Reference 1", "Reference 2"]
+}
+
+Requirements:
+- Be scientifically accurate and cite real research when possible
+- Include 3-5 key ingredients in breakdown
+- Suggest 2-3 realistic alternatives with estimated scores
+- Provide honest, balanced assessment`
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json", temperature: 0.3 }
+      })
     })
 
     if (!response.ok) return null
@@ -582,6 +378,9 @@ Provide honest, scientifically-backed analysis. Include 3-5 key ingredients and 
   }
 }
 
+// ============================================================================
+// MAIN API HANDLER
+// ============================================================================
 export async function POST(request: NextRequest) {
   try {
     // Check for authenticated user
@@ -594,6 +393,7 @@ export async function POST(request: NextRequest) {
       isPaidUser = user?.planId === "pro" || user?.planId === "premium"
     }
 
+    // Rate limiting
     const clientIP = getClientIP(request)
     const rateLimitResult = await checkRateLimit(clientIP)
 
@@ -605,18 +405,18 @@ export async function POST(request: NextRequest) {
             limit: rateLimitResult.limit,
             remaining: rateLimitResult.remaining,
             reset: rateLimitResult.reset,
-            planName: rateLimitResult.planName,
+            planName: rateLimitResult.planName
           },
-          upgradeRequired: rateLimitResult.planName === "Free",
+          upgradeRequired: rateLimitResult.planName === "Free"
         },
         {
           status: 429,
           headers: {
             "X-RateLimit-Limit": rateLimitResult.limit.toString(),
             "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
-            "X-RateLimit-Reset": rateLimitResult.reset.toString(),
-          },
-        },
+            "X-RateLimit-Reset": rateLimitResult.reset.toString()
+          }
+        }
       )
     }
 
@@ -626,45 +426,60 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Product term is required" }, { status: 400 })
     }
 
-    // Analyze the product with Gemini
+    // Step 1: Analyze the product with AI
     const analysis = await analyzeProductWithGemini(term, image)
 
-    // Calculate the initial score
-    const initialScoreObject = calculateUltraScore(analysis)
+    // Step 2: Calculate score using new NRF9.3 + NOVA system
+    let scoreResult = calculateHealthScore(analysis)
 
-    // Perform common sense check
-    let finalScoreData = await performCommonSenseCheck(analysis, initialScoreObject)
+    // Step 3: Perform safety check
+    scoreResult = await performCommonSenseCheck(analysis, scoreResult)
 
-    // Generate in-depth analysis for paid users
+    // Step 4: Generate in-depth analysis for paid users
+    let inDepthAnalysis: InDepthAnalysis | null = null
     if (isPaidUser && requestInDepth) {
-      const inDepthAnalysis = await generateInDepthAnalysis(analysis, finalScoreData)
-      finalScoreData = { ...finalScoreData, inDepthAnalysis }
+      inDepthAnalysis = await generateInDepthAnalysis(analysis, scoreResult)
     }
 
-    // Save scan to history for logged-in users
+    // Step 5: Save to history for logged-in users
     if (user) {
       try {
         await addScanToHistory(user.id, {
-          productName: finalScoreData.productName,
-          score: finalScoreData.finalScore,
-          category: finalScoreData.category,
-          nutrients: finalScoreData.nutrients,
-          breakdown: finalScoreData.breakdown,
-          healthierAddon: finalScoreData.healthierAddon,
-          topInCategory: finalScoreData.topInCategory,
+          productName: scoreResult.productName,
+          score: scoreResult.finalScore,
+          category: scoreResult.category,
+          nutrients: scoreResult.nutrients,
+          breakdown: scoreResult.breakdown,
+          healthierAddon: scoreResult.healthierAlternative,
+          topInCategory: null
         })
       } catch (historyError) {
         console.error("Failed to save scan to history:", historyError)
-        // Don't fail the request if history save fails
       }
     }
 
-    const response = NextResponse.json({
-      ...finalScoreData,
+    // Build response
+    const responseData = {
+      finalScore: scoreResult.finalScore,
+      category: scoreResult.category,
+      grade: scoreResult.grade,
+      productName: scoreResult.productName,
+      breakdown: scoreResult.breakdown,
+      confidence: scoreResult.confidence,
+      warnings: scoreResult.warnings,
+      nutrients: scoreResult.nutrients,
+      healthierAlternative: analysis.healthierAlternative || scoreResult.healthierAlternative,
+      processingLevel: analysis.processingLevel,
+      inDepthAnalysis,
       trackUsage: true,
       isPaidUser,
       isLoggedIn: !!user,
-    })
+      // Legacy compatibility fields
+      isBestInClass: scoreResult.finalScore >= 90,
+      trustScore: scoreResult.confidence.dataCompleteness
+    }
+
+    const response = NextResponse.json(responseData)
     response.headers.set("X-RateLimit-Limit", rateLimitResult.limit.toString())
     response.headers.set("X-RateLimit-Remaining", rateLimitResult.remaining.toString())
     response.headers.set("X-RateLimit-Reset", rateLimitResult.reset.toString())
@@ -672,6 +487,9 @@ export async function POST(request: NextRequest) {
     return response
   } catch (error) {
     console.error("Analysis error:", error)
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Analysis failed" }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Analysis failed" },
+      { status: 500 }
+    )
   }
 }
