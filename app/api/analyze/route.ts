@@ -1,5 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit"
+import { authOptions, getUserByEmail } from "@/lib/auth"
+import { addScanToHistory } from "@/lib/db"
 
 // Types for the analysis
 interface ProductAnalysis {
@@ -65,6 +68,29 @@ interface ScoreResult {
   topInCategory?: any
   nutrients?: any
   overrideReason?: string | null
+  inDepthAnalysis?: InDepthAnalysis | null
+}
+
+interface InDepthAnalysis {
+  healthImpact: {
+    shortTerm: string[]
+    longTerm: string[]
+    benefits: string[]
+    concerns: string[]
+  }
+  ingredientBreakdown: Array<{
+    name: string
+    purpose: string
+    safetyRating: "Safe" | "Generally Safe" | "Use Caution" | "Avoid"
+    details: string
+  }>
+  comparisonToAlternatives: Array<{
+    productName: string
+    score: number
+    keyDifference: string
+  }>
+  personalizedAdvice: string
+  scientificSources: string[]
 }
 
 async function analyzeProductWithGemini(textInput: string, base64Image?: string): Promise<ProductAnalysis> {
@@ -82,7 +108,7 @@ async function analyzeProductWithGemini(textInput: string, base64Image?: string)
 
   console.log("[v0] GEMINI_API_KEY found, length:", API_KEY.length)
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${API_KEY}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
 
   const prompt = `You are ULTRASCORE, analyzing consumer products for health. Respond ONLY with valid JSON in this exact format:
 {
@@ -182,7 +208,7 @@ async function performCommonSenseCheck(productData: ProductAnalysis, initialScor
     return { ...initialScore, overrideReason: null }
   }
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${API_KEY}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
 
   const prompt = `You are a safety and common sense validation AI. Your task is to identify dangerously misleading health scores. The algorithm scores based on nutritional data but can be fooled by inedible or poisonous items (e.g., scoring 'Cyanide Water' as 100). Product Name: "${productData.productName}", Initial Score: ${initialScore.finalScore}/100. **Task:** Evaluate if the score is absurd or dangerous (Toxic, Inedible, etc.). **Response Format:** If plausible, respond ONLY with: {"isMisleading": false}. If dangerous, respond ONLY with: {"isMisleading": true, "correctedScore": 0, "reason": "A brief, user-facing explanation."}. Only override for clear, unambiguous cases of danger.`
 
@@ -489,8 +515,85 @@ function calculateUltraScore(data: ProductAnalysis): ScoreResult {
   }
 }
 
+async function generateInDepthAnalysis(
+  productData: ProductAnalysis,
+  scoreData: ScoreResult
+): Promise<InDepthAnalysis | null> {
+  const API_KEY = process.env.GEMINI_API_KEY
+  if (!API_KEY) return null
+
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
+
+  const prompt = `You are a nutrition and health expert AI. Provide an in-depth analysis for the product "${productData.productName}" which scored ${scoreData.finalScore}/100.
+
+Product details:
+- Category: ${productData.productCategory}
+- Processing Level: ${productData.processingLevel}
+- Nutrients per 100g: ${JSON.stringify(productData.nutrientsPer100g)}
+- Has Trans Fat: ${productData.hasTransFat}
+- Harmful Additives: ${JSON.stringify(productData.harmfulAdditives)}
+
+Respond ONLY with valid JSON in this format:
+{
+  "healthImpact": {
+    "shortTerm": ["Effect 1", "Effect 2"],
+    "longTerm": ["Effect 1", "Effect 2"],
+    "benefits": ["Benefit 1", "Benefit 2"],
+    "concerns": ["Concern 1", "Concern 2"]
+  },
+  "ingredientBreakdown": [
+    {
+      "name": "Ingredient name",
+      "purpose": "Why it's in the product",
+      "safetyRating": "Safe" | "Generally Safe" | "Use Caution" | "Avoid",
+      "details": "More information about this ingredient"
+    }
+  ],
+  "comparisonToAlternatives": [
+    {
+      "productName": "Alternative product",
+      "score": 85,
+      "keyDifference": "Why this alternative is better/worse"
+    }
+  ],
+  "personalizedAdvice": "Specific advice for consuming this product",
+  "scientificSources": ["Source 1", "Source 2"]
+}
+
+Provide honest, scientifically-backed analysis. Include 3-5 key ingredients and 2-3 alternatives.`
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json", temperature: 0.3 },
+      }),
+    })
+
+    if (!response.ok) return null
+
+    const data = await response.json()
+    return JSON.parse(data.candidates[0].content.parts[0].text)
+  } catch (error) {
+    console.error("In-depth analysis error:", error)
+    return null
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
+    // Check for authenticated user
+    const session = await getServerSession(authOptions)
+    let user = null
+    let isPaidUser = false
+
+    if (session?.user?.email) {
+      user = await getUserByEmail(session.user.email)
+      isPaidUser = user?.planId === "pro" || user?.planId === "premium"
+    }
+
     const clientIP = getClientIP(request)
     const rateLimitResult = await checkRateLimit(clientIP)
 
@@ -517,7 +620,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { term, image } = await request.json()
+    const { term, image, requestInDepth } = await request.json()
 
     if (!term || typeof term !== "string") {
       return NextResponse.json({ error: "Product term is required" }, { status: 400 })
@@ -530,15 +633,37 @@ export async function POST(request: NextRequest) {
     const initialScoreObject = calculateUltraScore(analysis)
 
     // Perform common sense check
-    const finalScoreData = await performCommonSenseCheck(analysis, initialScoreObject)
+    let finalScoreData = await performCommonSenseCheck(analysis, initialScoreObject)
 
-    // Note: This is a simple approach since Redis is disabled
-    // In a real app, this would be handled server-side with proper rate limiting
+    // Generate in-depth analysis for paid users
+    if (isPaidUser && requestInDepth) {
+      const inDepthAnalysis = await generateInDepthAnalysis(analysis, finalScoreData)
+      finalScoreData = { ...finalScoreData, inDepthAnalysis }
+    }
+
+    // Save scan to history for logged-in users
+    if (user) {
+      try {
+        await addScanToHistory(user.id, {
+          productName: finalScoreData.productName,
+          score: finalScoreData.finalScore,
+          category: finalScoreData.category,
+          nutrients: finalScoreData.nutrients,
+          breakdown: finalScoreData.breakdown,
+          healthierAddon: finalScoreData.healthierAddon,
+          topInCategory: finalScoreData.topInCategory,
+        })
+      } catch (historyError) {
+        console.error("Failed to save scan to history:", historyError)
+        // Don't fail the request if history save fails
+      }
+    }
 
     const response = NextResponse.json({
       ...finalScoreData,
-      // Include a flag to trigger client-side usage tracking
       trackUsage: true,
+      isPaidUser,
+      isLoggedIn: !!user,
     })
     response.headers.set("X-RateLimit-Limit", rateLimitResult.limit.toString())
     response.headers.set("X-RateLimit-Remaining", rateLimitResult.remaining.toString())

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useCallback } from "react"
+import { useSession } from "next-auth/react"
 import { Header } from "@/components/header"
 import { SearchBar } from "@/components/search-bar"
 import { LoadingState } from "@/components/loading-state"
@@ -11,13 +12,30 @@ import { UsageIndicator } from "@/components/usage-indicator"
 import { useMobile } from "@/hooks/use-mobile"
 import { MailerLiteSignup } from "@/components/mailerlite-signup"
 import { FeatureShowcase } from "@/components/feature-showcase"
+import { PricingModal } from "@/components/pricing-modal"
+import { ScanHistoryModal } from "@/components/scan-history-modal"
+import { FavoritesModal } from "@/components/favorites-modal"
+import { PreferencesModal } from "@/components/preferences-modal"
+import { MealPlannerModal } from "@/components/meal-planner-modal"
+import { DiscoverModal } from "@/components/discover-modal"
+import { CommunityModal } from "@/components/community-modal"
 
 export default function HomePage() {
-  const [ultraScore, setUltraScore] = useState(null)
+  const { data: session } = useSession()
+  const [ultraScore, setUltraScore] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const resultsRef = useRef(null)
+  const [error, setError] = useState<string | null>(null)
+  const resultsRef = useRef<HTMLDivElement>(null)
   const isMobile = useMobile()
+
+  // Modal states
+  const [isPricingOpen, setIsPricingOpen] = useState(false)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const [isFavoritesOpen, setIsFavoritesOpen] = useState(false)
+  const [isPreferencesOpen, setIsPreferencesOpen] = useState(false)
+  const [isMealPlannerOpen, setIsMealPlannerOpen] = useState(false)
+  const [isDiscoverOpen, setIsDiscoverOpen] = useState(false)
+  const [isCommunityOpen, setIsCommunityOpen] = useState(false)
 
   const handleSearch = useCallback(async (term: string, image?: string) => {
     const today = new Date().toDateString()
@@ -42,7 +60,7 @@ export default function HomePage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ term, image }),
+        body: JSON.stringify({ term, image, requestInDepth: true }),
       })
 
       if (!response.ok) {
@@ -57,8 +75,6 @@ export default function HomePage() {
 
       if (result.trackUsage) {
         localStorage.setItem(key, (currentUsage + 1).toString())
-
-        // Trigger a re-render of usage indicator by updating a state
         setUltraScore({ ...result, usageTracked: true })
       } else {
         setUltraScore(result)
@@ -82,7 +98,16 @@ export default function HomePage() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-white text-slate-900 antialiased">
       <GrainyAuroraBackground />
-      <Header className="relative z-20" />
+      <Header
+        className="relative z-20"
+        onOpenDiscover={() => setIsDiscoverOpen(true)}
+        onOpenMealPlanner={() => setIsMealPlannerOpen(true)}
+        onOpenPreferences={() => setIsPreferencesOpen(true)}
+        onOpenCommunity={() => setIsCommunityOpen(true)}
+        onOpenHistory={() => setIsHistoryOpen(true)}
+        onOpenFavorites={() => setIsFavoritesOpen(true)}
+        onOpenPricing={() => setIsPricingOpen(true)}
+      />
 
       <main className="relative z-10">
         <section className="pt-24 pb-12 sm:pt-32 sm:pb-16 md:pt-40 md:pb-20">
@@ -147,9 +172,44 @@ export default function HomePage() {
             substitute for professional medical or nutritional advice. Always verify product information with the
             manufacturer.
           </p>
-          <p>&copy; 2025 ULTRASCORE Inc. All rights reserved.</p>
+          <p>&copy; 2025 HEALTHSCORE Inc. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Modals */}
+      <PricingModal
+        isOpen={isPricingOpen}
+        onClose={() => setIsPricingOpen(false)}
+        currentPlan={session?.user?.planId || "free"}
+      />
+      <ScanHistoryModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onSelectScan={handleSearch}
+      />
+      <FavoritesModal
+        isOpen={isFavoritesOpen}
+        onClose={() => setIsFavoritesOpen(false)}
+        onSelectFavorite={handleSearch}
+      />
+      <PreferencesModal
+        isOpen={isPreferencesOpen}
+        onClose={() => setIsPreferencesOpen(false)}
+      />
+      <MealPlannerModal
+        isOpen={isMealPlannerOpen}
+        onClose={() => setIsMealPlannerOpen(false)}
+      />
+      <DiscoverModal
+        isOpen={isDiscoverOpen}
+        onClose={() => setIsDiscoverOpen(false)}
+        onSearch={handleSearch}
+      />
+      <CommunityModal
+        isOpen={isCommunityOpen}
+        onClose={() => setIsCommunityOpen(false)}
+        onSearch={handleSearch}
+      />
     </div>
   )
 }
