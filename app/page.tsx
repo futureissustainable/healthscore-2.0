@@ -82,12 +82,12 @@ export default function HomePage() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-white text-slate-900 antialiased">
       <GrainyAuroraBackground />
-      <Header />
+      <Header className="relative z-20" />
 
       <main className="relative z-10">
         <section className="pt-24 pb-12 sm:pt-32 sm:pb-16 md:pt-40 md:pb-20">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-            <div className="max-w-3xl mx-auto text-center">
+            <div className="max-w-3xl mx-auto text-center relative z-10">
               <h1 className="text-3xl leading-tight sm:text-4xl sm:leading-snug md:text-5xl lg:text-6xl font-bold tracking-tighter text-balance">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-orange-500">
                   Scan.{" "}
@@ -105,14 +105,14 @@ export default function HomePage() {
               </p>
               <SearchBar onSearch={handleSearch} isLoading={isLoading} />
 
-              <div className="mt-6 flex justify-center">
+              <div className="mt-6 flex justify-center relative z-10">
                 <UsageIndicator key={ultraScore?.usageTracked ? Date.now() : "default"} />
               </div>
             </div>
 
             <div
               ref={resultsRef}
-              className={`transition-opacity duration-500 ${showResults ? "opacity-100" : "opacity-0"}`}
+              className={`transition-opacity duration-500 relative z-10 ${showResults ? "opacity-100" : "opacity-0"}`}
             >
               <div
                 className={`flex justify-center items-start ${
@@ -127,7 +127,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="py-12 sm:py-16 md:py-24 bg-slate-50">
+        <section className="py-12 sm:py-16 md:py-24 bg-slate-50 relative z-10">
           <div className="container mx-auto max-w-5xl px-4 sm:px-6">
             <div className="mb-16 sm:mb-20 md:mb-24">
               <MailerLiteSignup />
@@ -140,7 +140,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-slate-300 bg-slate-800">
+      <footer className="relative z-20 border-t border-slate-300 bg-slate-800">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 text-center text-sm text-slate-300">
           <p className="mb-4 text-xs leading-relaxed text-slate-400">
             *The AI-powered analysis is for informational purposes only and may not be 100% accurate. It is not a

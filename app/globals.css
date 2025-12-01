@@ -163,7 +163,7 @@
 /* Added custom animation classes for gradient and glow effects */
 .animate-gradientShift {
   background-size: 200% 200%;
-  animation: gradientShift 8s ease-in-out infinite;
+  animation: gradientShift 12s ease-in-out infinite; /* slowed down gradientShift animation from 8s to 12s (50% slower) */
 }
 
 .animate-subtleGlow {

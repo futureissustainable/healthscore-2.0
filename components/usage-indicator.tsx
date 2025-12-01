@@ -57,19 +57,19 @@ export function UsageIndicator() {
 
   const percentage = (usage.used / usage.limit) * 100
   const resetDate = new Date(usage.resetTime * 1000)
-  const isLimitExceeded = usage.used >= usage.limit
-  const isNearLimit = usage.remaining <= 2 && !isLimitExceeded
+  const isLimitReached = usage.used >= usage.limit
+  const isNearLimit = usage.remaining <= 2 && !isLimitReached
 
   return (
     <div
-      className={`inline-flex items-center gap-3 px-4 py-2 backdrop-blur-sm border rounded-full shadow-sm text-sm ${
-        isLimitExceeded ? "bg-red-50/90 border-red-200 text-red-700" : "bg-white/90 border-slate-200"
+      className={`inline-flex items-center gap-3 px-4 py-2 backdrop-blur-md border rounded-full shadow-sm text-sm ${
+        isLimitReached ? "bg-red-50/60 border-red-200/60 text-red-700" : "bg-white/60 border-slate-200/40"
       }`}
     >
       <div className="flex items-center gap-2">
         <span className="font-medium">Free</span>
         <span className="text-slate-400">•</span>
-        {isLimitExceeded ? (
+        {isLimitReached ? (
           <span className="font-bold text-red-600">Daily limit reached - resets at midnight</span>
         ) : (
           <span className={`font-bold ${isNearLimit ? "text-red-600" : "text-slate-600"}`}>
@@ -78,7 +78,7 @@ export function UsageIndicator() {
         )}
       </div>
 
-      {!isLimitExceeded && (
+      {!isLimitReached && (
         <div className="flex items-center gap-2">
           <div className="w-16 bg-slate-200 rounded-full h-1.5">
             <div

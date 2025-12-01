@@ -84,7 +84,8 @@ export function MailerLiteSignup() {
       </div>
 
       <div className="relative">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 via-red-400 to-orange-400 rounded-2xl opacity-0 group-hover:opacity-20 animate-subtleGlow blur-sm transition-opacity duration-500"></div>
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 via-red-400 to-orange-400 rounded-2xl opacity-75 group-hover:opacity-90 animate-subtleGlow blur-sm transition-opacity duration-500"></div>{" "}
+        {/* increased opacity from 0/20 to 75/90 for much higher visibility */}
         <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl p-6 shadow-sm relative group">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1">
