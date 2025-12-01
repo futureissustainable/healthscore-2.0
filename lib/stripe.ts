@@ -1,9 +1,20 @@
 import Stripe from "stripe"
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-11-20.acacia",
-  typescript: true,
-})
+// Lazy initialization to avoid build-time errors when env vars aren't available
+let _stripe: Stripe | null = null
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error("STRIPE_SECRET_KEY environment variable is not set")
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2024-11-20.acacia",
+      typescript: true,
+    })
+  }
+  return _stripe
+}
 
 export const STRIPE_PRICES = {
   pro: {
@@ -26,6 +37,7 @@ export async function createStripeCustomer(
   email: string,
   name?: string
 ): Promise<Stripe.Customer> {
+  const stripe = getStripe()
   const customer = await stripe.customers.create({
     email,
     name,
@@ -40,6 +52,7 @@ export async function getStripeCustomer(
   customerId: string
 ): Promise<Stripe.Customer | null> {
   try {
+    const stripe = getStripe()
     const customer = await stripe.customers.retrieve(customerId)
     if (customer.deleted) return null
     return customer as Stripe.Customer
@@ -55,6 +68,7 @@ export async function createCheckoutSession(
   successUrl: string,
   cancelUrl: string
 ): Promise<Stripe.Checkout.Session> {
+  const stripe = getStripe()
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     payment_method_types: ["card"],
@@ -77,6 +91,7 @@ export async function createBillingPortalSession(
   customerId: string,
   returnUrl: string
 ): Promise<Stripe.BillingPortal.Session> {
+  const stripe = getStripe()
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
     return_url: returnUrl,
@@ -88,6 +103,7 @@ export async function getSubscription(
   subscriptionId: string
 ): Promise<Stripe.Subscription | null> {
   try {
+    const stripe = getStripe()
     const subscription = await stripe.subscriptions.retrieve(subscriptionId)
     return subscription
   } catch (error) {
@@ -100,6 +116,7 @@ export async function cancelSubscription(
   subscriptionId: string
 ): Promise<Stripe.Subscription | null> {
   try {
+    const stripe = getStripe()
     const subscription = await stripe.subscriptions.cancel(subscriptionId)
     return subscription
   } catch (error) {

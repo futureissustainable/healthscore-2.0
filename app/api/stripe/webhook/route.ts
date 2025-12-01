@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 import Stripe from "stripe"
-import { stripe, getPlanIdFromPriceId } from "@/lib/stripe"
+import { getStripe, getPlanIdFromPriceId } from "@/lib/stripe"
 import { getUserByEmail, updateUser } from "@/lib/auth"
 import { Redis } from "@upstash/redis"
 
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
   let event: Stripe.Event
 
   try {
+    const stripe = getStripe()
     event = stripe.webhooks.constructEvent(
       body,
       signature,
@@ -91,6 +92,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   }
 
   // Get subscription details
+  const stripe = getStripe()
   const subscription = await stripe.subscriptions.retrieve(subscriptionId)
   const priceId = subscription.items.data[0]?.price.id
   const planId = getPlanIdFromPriceId(priceId || "")
@@ -161,6 +163,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 async function findEmailByCustomerId(customerId: string): Promise<string | null> {
   try {
     // First, try to get from Stripe
+    const stripe = getStripe()
     const customer = await stripe.customers.retrieve(customerId)
     if (!customer.deleted && customer.email) {
       return customer.email
