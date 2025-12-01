@@ -108,7 +108,7 @@ async function analyzeProductWithGemini(textInput: string, base64Image?: string)
 
   console.log("[v0] GEMINI_API_KEY found, length:", API_KEY.length)
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${API_KEY}`
 
   const prompt = `You are ULTRASCORE, analyzing consumer products for health. Respond ONLY with valid JSON in this exact format:
 {
@@ -208,7 +208,7 @@ async function performCommonSenseCheck(productData: ProductAnalysis, initialScor
     return { ...initialScore, overrideReason: null }
   }
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${API_KEY}`
 
   const prompt = `You are a safety and common sense validation AI. Your task is to identify dangerously misleading health scores. The algorithm scores based on nutritional data but can be fooled by inedible or poisonous items (e.g., scoring 'Cyanide Water' as 100). Product Name: "${productData.productName}", Initial Score: ${initialScore.finalScore}/100. **Task:** Evaluate if the score is absurd or dangerous (Toxic, Inedible, etc.). **Response Format:** If plausible, respond ONLY with: {"isMisleading": false}. If dangerous, respond ONLY with: {"isMisleading": true, "correctedScore": 0, "reason": "A brief, user-facing explanation."}. Only override for clear, unambiguous cases of danger.`
 
@@ -522,7 +522,7 @@ async function generateInDepthAnalysis(
   const API_KEY = process.env.GEMINI_API_KEY
   if (!API_KEY) return null
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${API_KEY}`
 
   const prompt = `You are a nutrition and health expert AI. Provide an in-depth analysis for the product "${productData.productName}" which scored ${scoreData.finalScore}/100.
 

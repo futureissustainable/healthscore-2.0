@@ -38,7 +38,7 @@ async function generateDiscoverItems(category: string, featured: boolean, prefer
     throw new Error("Gemini API key not configured")
   }
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${API_KEY}`
 
   const categoryPrompt = category !== "all" ? `Focus on ${category} category.` : "Include variety from different categories."
   const featuredPrompt = featured ? "Only include exceptional, standout healthy foods." : ""
@@ -132,7 +132,7 @@ async function getFoodDetails(foodName: string) {
     throw new Error("Gemini API key not configured")
   }
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${API_KEY}`
 
   const prompt = `Provide detailed nutritional and health information about "${foodName}".
 
