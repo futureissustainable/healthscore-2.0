@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@auth/core": "^0.34.3",
+    "@radix-ui/react-slot": "^1.2.4",
     "@upstash/redis": "latest",
     "@vercel/analytics": "latest",
     "class-variance-authority": "^0.7.1",
