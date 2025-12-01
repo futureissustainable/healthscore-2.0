@@ -10,6 +10,7 @@ import {
   getCategoryFromScore
 } from "@/lib/scoring-engine"
 import { WARNING_FLAGS } from "@/lib/scoring-constants"
+import { generateSmartRecommendations, shouldShowRecommendation } from "@/lib/recommendations"
 
 // ============================================================================
 // TYPES
@@ -96,12 +97,6 @@ const ANALYSIS_PROMPT = `You are HEALTHSCORE, an evidence-based product analyzer
     "hasFragrance": boolean,
     "isCrueltyFree": boolean,
     "isEWGVerified": boolean
-  } | null,
-
-  "healthierAlternative": {
-    "productName": string,
-    "description": string,
-    "estimatedScore": number
   } | null,
 
   "dataCompleteness": number
@@ -435,13 +430,19 @@ export async function POST(request: NextRequest) {
     // Step 3: Perform safety check
     scoreResult = await performCommonSenseCheck(analysis, scoreResult)
 
-    // Step 4: Generate in-depth analysis for paid users
+    // Step 4: Generate smart recommendations (only when relevant)
+    const recommendations = generateSmartRecommendations(analysis, scoreResult.finalScore)
+    const smartAddon = shouldShowRecommendation(recommendations.addon) ? recommendations.addon : null
+    const smartAlternative = shouldShowRecommendation(recommendations.alternative) ? recommendations.alternative : null
+    const smartPairing = shouldShowRecommendation(recommendations.pairing) ? recommendations.pairing : null
+
+    // Step 5: Generate in-depth analysis for paid users
     let inDepthAnalysis: InDepthAnalysis | null = null
     if (isPaidUser && requestInDepth) {
       inDepthAnalysis = await generateInDepthAnalysis(analysis, scoreResult)
     }
 
-    // Step 5: Save to history for logged-in users
+    // Step 6: Save to history for logged-in users
     if (user) {
       try {
         await addScanToHistory(user.id, {
@@ -450,8 +451,15 @@ export async function POST(request: NextRequest) {
           category: scoreResult.category,
           nutrients: scoreResult.nutrients,
           breakdown: scoreResult.breakdown,
-          healthierAddon: scoreResult.healthierAlternative,
-          topInCategory: null
+          healthierAddon: smartAddon ? {
+            productName: smartAddon.productName,
+            description: smartAddon.description,
+            scoreBoost: smartAddon.estimatedScoreBoost || 0
+          } : null,
+          topInCategory: smartAlternative ? {
+            productName: smartAlternative.productName,
+            description: smartAlternative.description
+          } : null
         })
       } catch (historyError) {
         console.error("Failed to save scan to history:", historyError)
@@ -468,15 +476,30 @@ export async function POST(request: NextRequest) {
       confidence: scoreResult.confidence,
       warnings: scoreResult.warnings,
       nutrients: scoreResult.nutrients,
-      healthierAlternative: analysis.healthierAlternative || scoreResult.healthierAlternative,
       processingLevel: analysis.processingLevel,
+      // Smart recommendations (only included when relevant and useful)
+      recommendations: {
+        addon: smartAddon,
+        alternative: smartAlternative,
+        pairing: smartPairing
+      },
       inDepthAnalysis,
       trackUsage: true,
       isPaidUser,
       isLoggedIn: !!user,
       // Legacy compatibility fields
       isBestInClass: scoreResult.finalScore >= 90,
-      trustScore: scoreResult.confidence.dataCompleteness
+      trustScore: scoreResult.confidence.dataCompleteness,
+      // Legacy fields for backwards compatibility
+      healthierAddon: smartAddon ? {
+        productName: smartAddon.productName,
+        description: smartAddon.description,
+        scoreBoost: smartAddon.estimatedScoreBoost || 0
+      } : null,
+      topInCategory: smartAlternative ? {
+        productName: smartAlternative.productName,
+        description: smartAlternative.description
+      } : null
     }
 
     const response = NextResponse.json(responseData)
