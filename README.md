@@ -5,7 +5,7 @@ HEALTHSCORE is a comprehensive health scoring application that uses AI to analyz
 ## Features
 
 ### Core Features
-- **AI-Powered Analysis**: Uses Google Gemini 2.0 Flash to analyze products from text descriptions or images
+- **AI-Powered Analysis**: Uses Google Gemini 3.0 Flash to analyze products from text descriptions or images
 - **Health Scoring**: Provides 0-100 health scores based on nutritional data and ingredients
 - **Product Recommendations**: Suggests healthier alternatives and top-in-category products
 - **Mobile-Optimized**: Responsive design with camera capture for mobile devices
@@ -29,7 +29,7 @@ HEALTHSCORE is a comprehensive health scoring application that uses AI to analyz
 
 - **Frontend**: Next.js 14, React 19, TypeScript, Tailwind CSS
 - **Backend**: Next.js API Routes (serverless)
-- **AI**: Google Gemini 2.0 Flash
+- **AI**: Google Gemini 3.0 Flash
 - **Database**: Upstash Redis for rate limiting and user data
 - **Authentication**: NextAuth.js
 - **Payments**: Stripe
