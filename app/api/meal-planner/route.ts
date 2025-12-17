@@ -123,7 +123,7 @@ async function generateMealPlan(userId: string, options: any) {
     throw new Error("Gemini API key not configured")
   }
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=${API_KEY}`
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`
 
   const daysCount = options.days || 7
   const today = new Date()
