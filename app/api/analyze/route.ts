@@ -47,10 +47,12 @@ interface ProductAnalysis {
     productName: string
     description: string
     scoreBoost: number
+    estimatedScore: number
   } | null
   topInCategory?: {
     productName: string
     description: string
+    estimatedScore: number
   } | null
 }
 
@@ -125,9 +127,11 @@ async function analyzeProductWithGemini(textInput: string, base64Image?: string)
   "hasTransFat": boolean,
   "wholeFoodContentPercentage": number,
   "personalCareDetails": { "harmfulIngredients": string[], "beneficialIngredients": string[], "hasFragrance": boolean, "isCrueltyFree": boolean } | null,
-  "healthierAddon": { "productName": string, "description": string, "scoreBoost": number } | null,
-  "topInCategory": { "productName": string, "description": string } | null
-}`
+  "healthierAddon": { "productName": string, "description": string, "scoreBoost": number, "estimatedScore": number } | null,
+  "topInCategory": { "productName": string, "description": string, "estimatedScore": number } | null
+}
+
+IMPORTANT: For healthierAddon and topInCategory, ONLY suggest alternatives that would genuinely score HIGHER than the analyzed product. The estimatedScore must be realistic and higher than what this product would score. If no meaningfully healthier alternative exists, return null for these fields.`
 
   const requestBody: any = {
     contents: [{ parts: [{ text: prompt }, { text: `Product: ${textInput}` }] }],
@@ -253,6 +257,23 @@ async function performCommonSenseCheck(productData: ProductAnalysis, initialScor
     console.warn("Failed to perform common sense check. Returning original score.", error)
     return { ...initialScore, overrideReason: null }
   }
+}
+
+// Filter out recommendations that don't score higher than the current product
+function validateRecommendations(
+  finalScore: number,
+  healthierAddon: ProductAnalysis["healthierAddon"],
+  topInCategory: ProductAnalysis["topInCategory"]
+): { healthierAddon: ProductAnalysis["healthierAddon"]; topInCategory: ProductAnalysis["topInCategory"] } {
+  // Only keep healthierAddon if its estimated score is higher than current product
+  const validHealthierAddon =
+    healthierAddon && healthierAddon.estimatedScore > finalScore ? healthierAddon : null
+
+  // Only keep topInCategory if its estimated score is higher than current product
+  const validTopInCategory =
+    topInCategory && topInCategory.estimatedScore > finalScore ? topInCategory : null
+
+  return { healthierAddon: validHealthierAddon, topInCategory: validTopInCategory }
 }
 
 function calculateFoodScore(data: ProductAnalysis): ScoreResult {
@@ -425,6 +446,9 @@ function calculateFoodScore(data: ProductAnalysis): ScoreResult {
   else if (finalScore >= 30) category = "Limit"
   else category = "Avoid"
 
+  // Filter out recommendations that don't score higher than current product
+  const validatedRecs = validateRecommendations(finalScore, data.healthierAddon, data.topInCategory)
+
   return {
     finalScore,
     isBestInClass,
@@ -432,8 +456,8 @@ function calculateFoodScore(data: ProductAnalysis): ScoreResult {
     category,
     productName: data.productName || "Unknown Product",
     breakdown: { baseScore: baseline, adjustments },
-    healthierAddon: data.healthierAddon || null,
-    topInCategory: data.topInCategory || null,
+    healthierAddon: validatedRecs.healthierAddon,
+    topInCategory: validatedRecs.topInCategory,
     nutrients: data.nutrientsPer100g,
   }
 }
@@ -486,6 +510,9 @@ function calculatePersonalCareScore(data: ProductAnalysis): ScoreResult {
   else if (finalScore >= 30) category = "Limit"
   else category = "Avoid"
 
+  // Filter out recommendations that don't score higher than current product
+  const validatedRecs = validateRecommendations(finalScore, data.healthierAddon, data.topInCategory)
+
   return {
     finalScore,
     isBestInClass,
@@ -493,8 +520,8 @@ function calculatePersonalCareScore(data: ProductAnalysis): ScoreResult {
     category,
     productName: data.productName || "Unknown Product",
     breakdown: { baseScore: baseline, adjustments },
-    healthierAddon: data.healthierAddon || null,
-    topInCategory: data.topInCategory || null,
+    healthierAddon: validatedRecs.healthierAddon,
+    topInCategory: validatedRecs.topInCategory,
     nutrients: null,
   }
 }
