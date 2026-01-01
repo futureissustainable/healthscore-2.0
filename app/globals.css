@@ -72,6 +72,13 @@
   --font-headline: 'PP Mondwest', serif;
   --font-body: 'Albert Sans', sans-serif;
 
+  /* Font sizes */
+  --fs-p-sm: 14px;   /* UI text, labels, buttons, metadata */
+  --fs-p-lg: 16px;   /* Body text, descriptions */
+  --fs-h-sm: 24px;   /* Section titles, card headers */
+  --fs-h-lg: 32px;   /* Page titles, major headings */
+  --fs-h-xl: 52px;   /* Hero headlines */
+
   /* Typography */
   --tracking: -0.02em;
 }
@@ -156,8 +163,8 @@
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
     font-weight: 400;
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: var(--fs-p-lg);
+    line-height: 1.5;
   }
 
   /* Headline typography - PP Mondwest */
@@ -168,24 +175,24 @@
     letter-spacing: -0.02em;
   }
 
-  /* Desktop heading sizes */
+  /* Heading sizes using new scale */
   h1 {
-    font-size: 3.25rem;
+    font-size: var(--fs-h-xl);
     line-height: 1.1;
   }
 
   h2 {
-    font-size: 2rem;
-    line-height: 1.2;
+    font-size: var(--fs-h-lg);
+    line-height: 1.15;
   }
 
   h3 {
-    font-size: 1.25rem;
-    line-height: 1.3;
+    font-size: var(--fs-h-sm);
+    line-height: 1.2;
   }
 
   h4 {
-    font-size: 0.95rem;
+    font-size: var(--fs-p-lg);
     line-height: 1.4;
   }
 
@@ -193,33 +200,50 @@
   p, span, div, li, a, button, input, textarea, label {
     font-family: var(--font-body);
   }
+
+  /* Small text */
+  small, .text-sm {
+    font-size: var(--fs-p-sm);
+  }
 }
 
 /* Mobile heading sizes */
 @media (max-width: 640px) {
-  h1 {
-    font-size: 2rem;
-    line-height: 1.15;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-    line-height: 1.25;
-  }
-
-  h3 {
-    font-size: 1.1rem;
-    line-height: 1.3;
-  }
-
-  h4 {
-    font-size: 0.9rem;
-    line-height: 1.4;
+  :root {
+    --fs-h-xl: 32px;
+    --fs-h-lg: 24px;
+    --fs-h-sm: 18px;
   }
 }
 
 /* Brutalist shadow utility */
 @layer utilities {
+  /* Font size utilities */
+  .text-p-sm {
+    font-size: var(--fs-p-sm);
+    line-height: 1.5;
+  }
+
+  .text-p-lg {
+    font-size: var(--fs-p-lg);
+    line-height: 1.5;
+  }
+
+  .text-h-sm {
+    font-size: var(--fs-h-sm);
+    line-height: 1.2;
+  }
+
+  .text-h-lg {
+    font-size: var(--fs-h-lg);
+    line-height: 1.15;
+  }
+
+  .text-h-xl {
+    font-size: var(--fs-h-xl);
+    line-height: 1.1;
+  }
+
   .shadow-brutal {
     box-shadow: 4px 4px 0 #000;
   }

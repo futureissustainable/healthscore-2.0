@@ -172,20 +172,20 @@ export function ScoreDisplay({ scoreData, onReset, onSearch }: ScoreDisplayProps
       <div className="w-full flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-2 sm:gap-4 px-1">
         <div className="flex-1 min-w-0">
           <h2
-            className="headline text-xl sm:text-2xl md:text-3xl font-normal text-white tracking-tight line-clamp-2"
+            className="headline text-h-lg font-normal text-white tracking-tight line-clamp-2"
             title={productName}
           >
             {mainDish}
           </h2>
-          {extras && <p className="text-sm text-muted-foreground line-clamp-1 -mt-1">{extras}</p>}
+          {extras && <p className="text-p-sm text-muted-foreground line-clamp-1 -mt-1">{extras}</p>}
           {characteristics.length > 0 && (
-            <div className="text-xs font-medium text-green-500 uppercase tracking-wider mt-1">
+            <div className="text-p-sm font-medium text-green-500 uppercase tracking-wider mt-1">
               {characteristics.join(" • ")}
             </div>
           )}
         </div>
         {trustScore && (
-          <p className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0 self-start sm:self-auto">
+          <p className="text-p-sm text-muted-foreground whitespace-nowrap flex-shrink-0 self-start sm:self-auto">
             Trust: {trustScore}%
           </p>
         )}
@@ -207,17 +207,17 @@ export function ScoreDisplay({ scoreData, onReset, onSearch }: ScoreDisplayProps
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={`headline text-4xl sm:text-5xl font-normal ${styles.text}`}>
+          <span className={`headline text-h-xl font-normal ${styles.text}`}>
             {finalScore}
           </span>
-          <span className="text-sm text-muted-foreground -mt-1">/ 100</span>
+          <span className="text-p-sm text-muted-foreground -mt-1">/ 100</span>
         </div>
       </div>
 
       {!overrideReason && <NutritionInfo data={nutrients} />}
 
       <div
-        className={`text-center px-4 py-1.5 border-2 text-sm font-medium tracking-wide ${styles.border} ${styles.text} mt-4 uppercase`}
+        className={`text-center px-4 py-1.5 border-2 text-p-sm font-medium tracking-wide ${styles.border} ${styles.text} mt-4 uppercase`}
       >
         {category}
       </div>
@@ -225,21 +225,21 @@ export function ScoreDisplay({ scoreData, onReset, onSearch }: ScoreDisplayProps
       {isBestInClass && !overrideReason && (
         <div className="mt-2 flex items-center justify-center gap-1.5 text-yellow-400">
           <StarIcon className="w-5 h-5" />
-          <span className="font-medium text-sm tracking-wide uppercase">Best in Class</span>
+          <span className="font-medium text-p-sm tracking-wide uppercase">Best in Class</span>
         </div>
       )}
 
       {overrideReason && (
         <div className="w-full mt-4 p-3 text-center border-2 border-red-500 bg-red-500/10">
-          <p className="text-sm font-medium text-red-500 uppercase">Safety Override by AI</p>
-          <p className="text-xs text-red-400 mt-1">{overrideReason}</p>
+          <p className="text-p-sm font-medium text-red-500 uppercase">Safety Override by AI</p>
+          <p className="text-p-sm text-red-400 mt-1">{overrideReason}</p>
         </div>
       )}
 
       <div className="flex-grow w-full flex flex-col mt-4 overflow-hidden">
         {finalScore < 90 && !overrideReason && (healthierAddon || topInCategory) && (
           <div className="w-full pt-2">
-            <h4 className="headline text-lg sm:text-xl font-normal text-white text-center mb-3 tracking-tight">
+            <h4 className="headline text-h-sm font-normal text-white text-center mb-3 tracking-tight">
               Better Choices
             </h4>
             <div className="space-y-2 sm:space-y-3">

@@ -59,8 +59,8 @@ export function MailerLiteSignup() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="headline text-xl font-normal text-white mb-2">You're all set!</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <h3 className="headline text-h-sm font-normal text-white mb-2">You're all set!</h3>
+            <p className="text-muted-foreground text-p-sm leading-relaxed">
               We'll keep you updated on the full release and new features.
             </p>
           </div>
@@ -72,12 +72,12 @@ export function MailerLiteSignup() {
   return (
     <div className="max-w-lg mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 border border-white text-white px-3 py-1 text-xs font-medium uppercase tracking-wider mb-4">
+        <div className="inline-flex items-center gap-2 border border-white text-white px-3 py-1 text-p-sm font-medium uppercase tracking-wider mb-4">
           <div className="w-2 h-2 bg-white animate-pulse-glow"></div>
           Early Access
         </div>
-        <h3 className="headline text-2xl font-normal text-white mb-3 text-balance">Sign up for updates on full release!</h3>
-        <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
+        <h3 className="headline text-h-lg font-normal text-white mb-3 text-balance">Sign up for updates on full release!</h3>
+        <p className="text-muted-foreground text-p-sm leading-relaxed max-w-md mx-auto">
           Be the first to know when we launch new features and improvements. Help us build the perfect nutrition
           companion.
         </p>
@@ -87,7 +87,7 @@ export function MailerLiteSignup() {
         <div className="border border-border bg-background p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1">
-              <label htmlFor="email" className="text-sm font-medium text-white">
+              <label htmlFor="email" className="text-p-sm font-medium text-white">
                 Email address
               </label>
               <Input

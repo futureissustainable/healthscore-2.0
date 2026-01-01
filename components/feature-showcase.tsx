@@ -53,16 +53,16 @@ function FeatureCard({ feature, index }: { feature: (typeof features)[0]; index:
       </div>
 
       <div className="absolute top-3 right-3">
-        <span className="inline-flex items-center px-2 py-1 text-xs font-medium uppercase tracking-wider bg-white text-black border-2 border-white">
+        <span className="inline-flex items-center px-2 py-1 text-p-sm font-medium uppercase tracking-wider bg-white text-black border-2 border-white">
           Soon
         </span>
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-        <h3 className="headline font-normal text-lg mb-1">
+        <h3 className="headline font-normal text-h-sm mb-1">
           {feature.title}
         </h3>
-        <p className="text-sm text-white/70 leading-relaxed line-clamp-2">
+        <p className="text-p-sm text-white/70 leading-relaxed line-clamp-2">
           {feature.description}
         </p>
       </div>
@@ -74,8 +74,8 @@ export function FeatureShowcase() {
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="headline text-2xl sm:text-3xl font-normal text-white mb-3">Coming Soon</h2>
-        <p className="text-muted-foreground text-lg">Exciting features in development to enhance your health journey</p>
+        <h2 className="headline text-h-lg font-normal text-white mb-3">Coming Soon</h2>
+        <p className="text-muted-foreground text-p-lg">Exciting features in development to enhance your health journey</p>
       </div>
 
       <div className="grid grid-cols-3 grid-rows-2 gap-3 h-[500px] sm:h-[600px]">

@@ -116,12 +116,12 @@ export default function HomePage() {
         <section className="pt-24 pb-12 sm:pt-32 sm:pb-16 md:pt-40 md:pb-20">
           <div className="container mx-auto max-w-7xl px-content">
             <div className="max-w-3xl mx-auto text-center relative z-10">
-              <h1 className="headline text-3xl leading-tight sm:text-4xl sm:leading-snug md:text-5xl lg:text-6xl font-normal tracking-tight text-balance">
+              <h1 className="headline text-h-xl font-normal tracking-tight text-balance">
                 <span className="text-white">Scan. </span>
                 <span className="text-muted-foreground">Score. </span>
                 <span className="text-white">Decide.</span>
               </h1>
-              <p className="mt-6 max-w-xl mx-auto text-base sm:text-lg text-muted-foreground text-pretty px-4 sm:px-0">
+              <p className="mt-6 max-w-xl mx-auto text-p-lg text-muted-foreground text-pretty px-4 sm:px-0">
                 The AI-powered app for health-scoring{" "}
                 <span className="font-medium text-white">everything.</span>{" "}
                 Instantly understand the impact of any product on your well-being.
