@@ -22,13 +22,12 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
       const today = new Date().toDateString()
       const key = `usage_${today}`
       const used = Number.parseInt(localStorage.getItem(key) || "0")
-      const limit = 30 // Updated limit from 10 to 30 to match the new daily limit
+      const limit = 30
       setIsLimitReached(used >= limit)
     }
 
     checkUsageLimit()
 
-    // Listen for storage changes to update limit status
     const handleStorageChange = () => {
       checkUsageLimit()
     }
@@ -79,21 +78,15 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="relative mt-6 sm:mt-8 max-w-xl mx-auto">
-      <div className="absolute -inset-8 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 opacity-40 blur-[20rem] animate-gradientShift -z-10"></div>
-      <div className="absolute -inset-4 rounded-2xl bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 opacity-75 blur-[12rem] animate-gradientShift -z-10"></div>
-      <div
-        className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-red-400 via-yellow-400 to-green-400 opacity-60 blur-[3rem] animate-gradientShift -z-10"
-        style={{ animationDelay: "1s" }}
-      ></div>
-      <div
-        className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-red-300 via-yellow-300 to-green-300 opacity-40 blur-[0.5rem] animate-gradientShift -z-10"
-        style={{ animationDelay: "2s" }}
-      ></div>
+    <form onSubmit={handleSubmit} className="relative mt-8 sm:mt-10 max-w-xl mx-auto">
+      {/* Warm glow effect */}
+      <div className="absolute -inset-4 bg-primary/5 blur-[60px] -z-10"></div>
 
       <div
-        className={`relative z-10 flex items-center w-full backdrop-blur-lg rounded-full p-1 shadow-lg ring-1 ${
-          isLimitReached ? "bg-slate-200/70 ring-slate-300/50" : "bg-slate-50/90 ring-black/5"
+        className={`relative z-10 flex items-center w-full border p-1 rounded-xl transition-all duration-150 shadow-soft ${
+          isLimitReached
+            ? "bg-muted/20 border-muted"
+            : "bg-card border-border hover:border-primary/50 focus-within:border-primary focus-within:shadow-warm"
         }`}
       >
         <input
@@ -101,10 +94,10 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           disabled={isLoading || isCapturing || isLimitReached}
-          className={`flex-1 w-full h-12 sm:h-10 bg-transparent outline-none px-4 text-base sm:text-sm ${
+          className={`flex-1 w-full h-12 sm:h-10 bg-transparent outline-none px-4 text-base sm:text-sm rounded-lg ${
             isLimitReached
-              ? "text-slate-400 placeholder-slate-400 cursor-not-allowed"
-              : "text-slate-900 placeholder-slate-500"
+              ? "text-muted cursor-not-allowed placeholder-muted"
+              : "text-foreground placeholder-muted-foreground"
           }`}
           placeholder={isMobile ? "Product name or take photo" : "e.g., 'Cheerios', 'Avocado', or 'Head and Shoulders'"}
         />
@@ -122,18 +115,18 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
           aria-label={isLimitReached ? "Daily limit reached" : isCapturing ? "Processing image..." : "Take photo"}
           onClick={handleCameraClick}
           disabled={isLoading || isCapturing || isLimitReached}
-          className={`ml-1 p-3 sm:p-2 rounded-full transition-colors touch-manipulation ${
+          className={`ml-1 p-3 sm:p-2 transition-all duration-150 touch-manipulation rounded-lg ${
             isLimitReached
-              ? "bg-slate-400/60 text-slate-300 cursor-not-allowed"
-              : "bg-slate-800/70 text-white hover:bg-slate-700/80 active:bg-slate-900/80 disabled:bg-slate-400/60"
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 disabled:bg-muted disabled:text-muted-foreground shadow-soft-sm"
           }`}
         >
-          <CameraIcon className={`w-6 h-6 ${isCapturing ? "animate-pulse" : ""}`} />
+          <CameraIcon className={`w-5 h-5 ${isCapturing ? "animate-pulse" : ""}`} />
         </button>
       </div>
       {isCapturing && (
-        <div className="absolute top-full left-0 right-0 mt-2 text-center z-10">
-          <p className="text-sm text-slate-600 bg-white/80 backdrop-blur-sm rounded-lg py-2 px-4 inline-block">
+        <div className="absolute top-full left-0 right-0 mt-3 text-center z-10">
+          <p className="text-sm text-muted-foreground bg-card border border-border rounded-lg py-2 px-4 inline-block shadow-soft-sm">
             Processing image...
           </p>
         </div>
