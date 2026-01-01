@@ -47,13 +47,13 @@ function SuggestionCard({ title, item, onSearch, icon }: SuggestionCardProps) {
   return (
     <button
       onClick={onSearch}
-      className="w-full text-left p-3 border border-border bg-accent/50 hover:bg-accent transition-all duration-100 active:translate-x-[2px] active:translate-y-[2px] focus:outline-2 focus:outline-white focus:outline-offset-2 touch-manipulation"
+      className="w-full text-left p-3 border border-border rounded-lg bg-accent/50 hover:bg-accent hover:shadow-soft transition-all duration-150 active:scale-[0.98] focus:outline-2 focus:outline-primary focus:outline-offset-2 touch-manipulation"
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 pt-1">{icon}</div>
         <div className="flex-grow min-w-0">
           <h5 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{title}</h5>
-          <p className="font-medium text-white mt-1 truncate">{item.productName}</p>
+          <p className="font-medium text-foreground mt-1 truncate">{item.productName}</p>
           <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
         </div>
       </div>
@@ -76,7 +76,7 @@ function Macro({ label, value, unit }: { label: string; value: number; unit: str
   return (
     <div className="text-center">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="font-medium text-white text-sm">
+      <p className="font-medium text-foreground text-sm">
         {value ?? "0"}
         {unit}
       </p>
@@ -168,11 +168,11 @@ export function ScoreDisplay({ scoreData, onReset, onSearch }: ScoreDisplayProps
   const strokeDashoffset = circumference - (finalScore / 100) * circumference
 
   return (
-    <div className="w-full max-w-sm sm:max-w-md min-h-[550px] mx-auto bg-background border border-border shadow-brutal-white p-4 sm:p-6 flex flex-col items-center animate-fade-in">
+    <div className="w-full max-w-sm sm:max-w-md min-h-[550px] mx-auto bg-card border border-border rounded-2xl shadow-soft-lg p-4 sm:p-6 flex flex-col items-center animate-fade-in">
       <div className="w-full flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-2 sm:gap-4 px-1">
         <div className="flex-1 min-w-0">
           <h2
-            className="headline text-h-lg font-normal text-white tracking-tight line-clamp-2"
+            className="headline text-h-lg font-normal text-foreground tracking-tight line-clamp-2"
             title={productName}
           >
             {mainDish}
@@ -239,7 +239,7 @@ export function ScoreDisplay({ scoreData, onReset, onSearch }: ScoreDisplayProps
       <div className="flex-grow w-full flex flex-col mt-4 overflow-hidden">
         {finalScore < 90 && !overrideReason && (healthierAddon || topInCategory) && (
           <div className="w-full pt-2">
-            <h4 className="headline text-h-sm font-normal text-white text-center mb-3 tracking-tight">
+            <h4 className="headline text-h-sm font-normal text-foreground text-center mb-3 tracking-tight">
               Better Choices
             </h4>
             <div className="space-y-2 sm:space-y-3">
@@ -267,12 +267,12 @@ export function ScoreDisplay({ scoreData, onReset, onSearch }: ScoreDisplayProps
       <div className="w-full text-xs mt-auto flex-shrink-0 pt-2">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="text-muted-foreground hover:text-white font-medium w-full text-center py-2 sm:py-1 touch-manipulation transition-colors duration-100"
+          className="text-muted-foreground hover:text-foreground font-medium w-full text-center py-2 sm:py-1 touch-manipulation transition-colors duration-150"
         >
           {isExpanded ? "Hide" : "Show"} Breakdown
         </button>
         {isExpanded && (
-          <div className="mt-1 p-2 bg-accent border border-border max-h-32 sm:max-h-24 overflow-y-auto">
+          <div className="mt-1 p-2 bg-accent rounded-lg border border-border max-h-32 sm:max-h-24 overflow-y-auto">
             <AdjustmentRow adj={{ reason: "Baseline", points: breakdown.baseScore }} />
             {breakdown.adjustments.map((adj, i) => (
               <AdjustmentRow key={i} adj={adj} />
@@ -281,7 +281,7 @@ export function ScoreDisplay({ scoreData, onReset, onSearch }: ScoreDisplayProps
         )}
         <button
           onClick={onReset}
-          className="w-full mt-2 text-center text-sm font-medium tracking-wide text-black bg-white hover:bg-transparent hover:text-white border-2 border-white py-3 sm:py-2 transition-all duration-100 flex-shrink-0 touch-manipulation active:translate-x-[2px] active:translate-y-[2px]"
+          className="w-full mt-2 text-center text-sm font-medium tracking-wide text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg py-3 sm:py-2 transition-all duration-150 flex-shrink-0 touch-manipulation active:scale-[0.98] shadow-soft-sm hover:shadow-soft"
         >
           Scan Another
         </button>

@@ -5,21 +5,21 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-100 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 border",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium rounded-lg transition-all duration-150 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2",
   {
     variants: {
       variant: {
         default:
-          'bg-white text-black border-white hover:bg-transparent hover:text-white shadow-brutal-white-sm hover:shadow-none active:translate-x-[2px] active:translate-y-[2px]',
+          'bg-primary text-primary-foreground hover:bg-primary/90 shadow-soft-sm hover:shadow-soft active:scale-[0.98]',
         destructive:
-          'bg-destructive text-white border-destructive hover:bg-destructive/80 shadow-brutal-white-sm hover:shadow-none active:translate-x-[2px] active:translate-y-[2px]',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-soft-sm hover:shadow-soft active:scale-[0.98]',
         outline:
-          'border-border bg-transparent text-white hover:bg-accent hover:text-white shadow-brutal-white-sm hover:shadow-none active:translate-x-[2px] active:translate-y-[2px]',
+          'border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground shadow-soft-sm hover:shadow-soft active:scale-[0.98]',
         secondary:
-          'bg-secondary text-white border-secondary hover:bg-secondary/80 shadow-brutal-white-sm hover:shadow-none active:translate-x-[2px] active:translate-y-[2px]',
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-soft-sm hover:shadow-soft active:scale-[0.98]',
         ghost:
-          'border-transparent hover:bg-accent hover:text-white',
-        link: 'text-white underline-offset-4 hover:underline border-transparent',
+          'hover:bg-accent hover:text-accent-foreground',
+        link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-10 px-5 py-2',

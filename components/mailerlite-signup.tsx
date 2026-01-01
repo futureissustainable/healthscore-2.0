@@ -52,14 +52,14 @@ export function MailerLiteSignup() {
   if (isSuccess) {
     return (
       <div className="max-w-lg mx-auto">
-        <div className="bg-green-500/10 border-2 border-green-500 p-8 animate-fade-in">
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-8 animate-fade-in shadow-soft">
           <div className="text-center">
-            <div className="w-16 h-16 border-2 border-green-500 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="headline text-h-sm font-normal text-white mb-2">You're all set!</h3>
+            <h3 className="headline text-h-sm font-normal text-foreground mb-2">You're all set!</h3>
             <p className="text-muted-foreground text-p-sm leading-relaxed">
               We'll keep you updated on the full release and new features.
             </p>
@@ -72,11 +72,11 @@ export function MailerLiteSignup() {
   return (
     <div className="max-w-lg mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 border border-white text-white px-3 py-1 text-p-sm font-medium uppercase tracking-wider mb-4">
-          <div className="w-2 h-2 bg-white animate-pulse-glow"></div>
+        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-p-sm font-medium uppercase tracking-wider mb-4">
+          <div className="w-2 h-2 bg-primary rounded-full animate-pulse-glow"></div>
           Early Access
         </div>
-        <h3 className="headline text-h-lg font-normal text-white mb-3 text-balance">Sign up for updates on full release!</h3>
+        <h3 className="headline text-h-lg font-normal text-foreground mb-3 text-balance">Sign up for updates on full release!</h3>
         <p className="text-muted-foreground text-p-sm leading-relaxed max-w-md mx-auto">
           Be the first to know when we launch new features and improvements. Help us build the perfect nutrition
           companion.
@@ -84,10 +84,10 @@ export function MailerLiteSignup() {
       </div>
 
       <div className="relative">
-        <div className="border border-border bg-background p-6">
+        <div className="border border-border bg-card rounded-2xl p-6 shadow-soft">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1">
-              <label htmlFor="email" className="text-p-sm font-medium text-white">
+              <label htmlFor="email" className="text-p-sm font-medium text-foreground">
                 Email address
               </label>
               <Input
@@ -103,7 +103,7 @@ export function MailerLiteSignup() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label htmlFor="accuracy" className="text-sm font-medium text-white">
+                <label htmlFor="accuracy" className="text-sm font-medium text-foreground">
                   Accuracy rating
                 </label>
                 <div className="relative">
@@ -123,12 +123,12 @@ export function MailerLiteSignup() {
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="feature-priority" className="text-sm font-medium text-white">
+                <label htmlFor="feature-priority" className="text-sm font-medium text-foreground">
                   Most needed feature
                 </label>
                 <select
                   id="feature-priority"
-                  className="h-10 w-full border border-border bg-transparent px-4 py-2 text-sm text-white focus:border-white focus:outline-2 focus:outline-white focus:outline-offset-2 transition-colors duration-100"
+                  className="h-10 w-full border border-border bg-background rounded-lg px-4 py-2 text-sm text-foreground focus:border-primary focus:outline-2 focus:outline-primary focus:outline-offset-2 transition-colors duration-150 shadow-soft-sm"
                   disabled={isLoading}
                   value={featurePriority}
                   onChange={(e) => setFeaturePriority(e.target.value)}
@@ -146,7 +146,7 @@ export function MailerLiteSignup() {
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="feedback" className="text-sm font-medium text-white">
+              <label htmlFor="feedback" className="text-sm font-medium text-foreground">
                 Why do you need this feature?
               </label>
               <Textarea
@@ -166,7 +166,7 @@ export function MailerLiteSignup() {
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-black/30 border-t-black animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   Signing up...
                 </div>
               ) : (
@@ -175,8 +175,8 @@ export function MailerLiteSignup() {
             </Button>
 
             {error && (
-              <div className="border-2 border-red-500 bg-red-500/10 p-3">
-                <p className="text-red-500 text-sm text-center">{error}</p>
+              <div className="border border-red-200 bg-red-50 rounded-lg p-3">
+                <p className="text-red-600 text-sm text-center">{error}</p>
               </div>
             )}
           </form>

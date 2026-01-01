@@ -50,7 +50,7 @@ export function UserMenu({
 
   if (status === "loading") {
     return (
-      <div className="w-8 h-8 border border-border bg-accent animate-pulse" />
+      <div className="w-8 h-8 border border-border rounded-full bg-accent animate-pulse" />
     )
   }
 
@@ -69,17 +69,17 @@ export function UserMenu({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 p-1 border border-border hover:border-white transition-colors duration-100"
+        className="flex items-center space-x-2 p-1 border border-border rounded-full hover:border-primary/50 transition-colors duration-150 shadow-soft-sm"
       >
         {session.user?.image ? (
           <img
             src={session.user.image}
             alt={session.user.name || "User"}
-            className="w-8 h-8"
+            className="w-8 h-8 rounded-full"
           />
         ) : (
-          <div className="w-8 h-8 bg-white flex items-center justify-center">
-            <User className="w-4 h-4 text-black" />
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+            <User className="w-4 h-4 text-primary-foreground" />
           </div>
         )}
       </button>
@@ -90,9 +90,9 @@ export function UserMenu({
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-64 bg-background border border-border shadow-brutal-white z-50 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-64 bg-card border border-border rounded-xl shadow-soft-lg z-50 overflow-hidden">
             <div className="p-4 border-b border-border">
-              <p className="font-medium text-white truncate">
+              <p className="font-medium text-foreground truncate">
                 {session.user?.name || session.user?.email}
               </p>
               <p className="text-sm text-muted-foreground truncate">
@@ -100,12 +100,12 @@ export function UserMenu({
               </p>
               <div className="mt-2">
                 <span
-                  className={`inline-flex items-center px-2 py-0.5 border text-xs font-medium uppercase tracking-wider ${
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider ${
                     session.user?.planId === "premium"
-                      ? "border-purple-500 text-purple-500"
+                      ? "bg-purple-100 text-purple-600"
                       : session.user?.planId === "pro"
-                        ? "border-green-500 text-green-500"
-                        : "border-muted-foreground text-muted-foreground"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-muted text-muted-foreground"
                   }`}
                 >
                   {session.user?.planId === "premium"
@@ -123,7 +123,7 @@ export function UserMenu({
                   onOpenHistory?.()
                   setIsOpen(false)
                 }}
-                className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-white flex items-center space-x-3 transition-colors duration-100"
+                className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground flex items-center space-x-3 transition-colors duration-150 rounded-lg mx-1"
               >
                 <History className="w-4 h-4" />
                 <span>Scan History</span>
@@ -134,7 +134,7 @@ export function UserMenu({
                   onOpenFavorites?.()
                   setIsOpen(false)
                 }}
-                className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-white flex items-center space-x-3 transition-colors duration-100"
+                className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground flex items-center space-x-3 transition-colors duration-150 rounded-lg mx-1"
               >
                 <Heart className="w-4 h-4" />
                 <span>Favorites</span>
@@ -145,7 +145,7 @@ export function UserMenu({
                   onOpenPreferences?.()
                   setIsOpen(false)
                 }}
-                className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-white flex items-center space-x-3 transition-colors duration-100"
+                className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground flex items-center space-x-3 transition-colors duration-150 rounded-lg mx-1"
               >
                 <Settings className="w-4 h-4" />
                 <span>Preferences</span>
@@ -157,7 +157,7 @@ export function UserMenu({
                     handleBillingPortal()
                     setIsOpen(false)
                   }}
-                  className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-white flex items-center space-x-3 transition-colors duration-100"
+                  className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground flex items-center space-x-3 transition-colors duration-150 rounded-lg mx-1"
                 >
                   <CreditCard className="w-4 h-4" />
                   <span>Manage Subscription</span>
@@ -170,7 +170,7 @@ export function UserMenu({
                     onOpenPricing?.()
                     setIsOpen(false)
                   }}
-                  className="w-full px-4 py-2.5 text-left text-sm text-green-500 hover:bg-green-500/10 flex items-center space-x-3 transition-colors duration-100"
+                  className="w-full px-4 py-2.5 text-left text-sm text-green-600 hover:bg-green-50 flex items-center space-x-3 transition-colors duration-150 rounded-lg mx-1"
                 >
                   <CreditCard className="w-4 h-4" />
                   <span>Upgrade Plan</span>
@@ -181,7 +181,7 @@ export function UserMenu({
             <div className="py-2 border-t border-border">
               <button
                 onClick={handleSignOut}
-                className="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-500/10 flex items-center space-x-3 transition-colors duration-100"
+                className="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-50 flex items-center space-x-3 transition-colors duration-150 rounded-lg mx-1"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>

@@ -2,9 +2,8 @@
 @import "tw-animate-css";
 
 /* FeelScan Design System
-   Philosophy: Apple-style warm, brutalist, neo-swiss, friendly
-   Anti-design design, Neo-brutalism meets classical reverence
-   Cottagecore meets Silicon Valley */
+   Philosophy: Modern Neo-Swiss meets Cottagecore
+   Warm, friendly, inviting UI/UX with soft touches */
 
 /* Custom fonts */
 @font-face {
@@ -23,50 +22,50 @@
   font-display: swap;
 }
 
-/* Dark mode as default - no .dark class needed */
+/* Light mode as default - warm and friendly */
 :root {
-  /* Core Colors - Dark Mode Default */
-  --background: #000000;
-  --foreground: #ffffff;
-  --primary: #ffffff;
-  --primary-foreground: #000000;
-  --secondary: #525252;
-  --secondary-foreground: #ffffff;
-  --muted: #525252;
-  --muted-foreground: #a3a3a3;
-  --accent: #404040;
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
+  /* Core Colors - Warm Light Mode */
+  --background: #fafaf9;
+  --foreground: #1c1917;
+  --primary: #ea580c;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f4;
+  --secondary-foreground: #44403c;
+  --muted: #e7e5e4;
+  --muted-foreground: #78716c;
+  --accent: #fff7ed;
+  --accent-foreground: #9a3412;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #404040;
-  --input: #404040;
-  --ring: #a3a3a3;
+  --border: #d6d3d1;
+  --input: #d6d3d1;
+  --ring: #ea580c;
 
   /* Card colors */
-  --card: #000000;
-  --card-foreground: #ffffff;
-  --popover: #000000;
-  --popover-foreground: #ffffff;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --popover: #ffffff;
+  --popover-foreground: #1c1917;
 
   /* Sidebar */
-  --sidebar: #000000;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #404040;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #404040;
-  --sidebar-ring: #a3a3a3;
+  --sidebar: #fafaf9;
+  --sidebar-foreground: #1c1917;
+  --sidebar-primary: #ea580c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fff7ed;
+  --sidebar-accent-foreground: #9a3412;
+  --sidebar-border: #d6d3d1;
+  --sidebar-ring: #ea580c;
 
-  /* Chart colors */
+  /* Chart/Score colors - vibrant gradients */
   --chart-1: #22c55e;
-  --chart-2: #eab308;
-  --chart-3: #f97316;
-  --chart-4: #ef4444;
-  --chart-5: #a3a3a3;
+  --chart-2: #84cc16;
+  --chart-3: #eab308;
+  --chart-4: #f97316;
+  --chart-5: #ef4444;
 
-  /* Brutalist: No border radius */
-  --radius: 0;
+  /* Soft rounded corners */
+  --radius: 0.75rem;
 
   /* Font families */
   --font-headline: 'PP Mondwest', serif;
@@ -83,25 +82,25 @@
   --tracking: -0.02em;
 }
 
-/* Light mode override (only when explicitly set) */
-.light {
-  --background: #ffffff;
-  --foreground: #000000;
-  --primary: #000000;
-  --primary-foreground: #ffffff;
-  --secondary: #a3a3a3;
-  --secondary-foreground: #000000;
-  --muted: #a3a3a3;
-  --muted-foreground: #525252;
-  --accent: #e5e5e5;
-  --accent-foreground: #000000;
-  --border: #404040;
-  --input: #404040;
-  --ring: #525252;
-  --card: #ffffff;
-  --card-foreground: #000000;
-  --popover: #ffffff;
-  --popover-foreground: #000000;
+/* Dark mode override */
+.dark {
+  --background: #1c1917;
+  --foreground: #fafaf9;
+  --primary: #fb923c;
+  --primary-foreground: #1c1917;
+  --secondary: #292524;
+  --secondary-foreground: #d6d3d1;
+  --muted: #44403c;
+  --muted-foreground: #a8a29e;
+  --accent: #431407;
+  --accent-foreground: #fed7aa;
+  --border: #44403c;
+  --input: #44403c;
+  --ring: #fb923c;
+  --card: #292524;
+  --card-foreground: #fafaf9;
+  --popover: #292524;
+  --popover-foreground: #fafaf9;
 }
 
 @theme inline {
@@ -142,11 +141,11 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Brutalist radius - always 0 */
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
+  /* Soft rounded corners */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
 }
 
 @layer base {
@@ -156,7 +155,7 @@
   }
 
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
@@ -165,6 +164,8 @@
     font-weight: 400;
     font-size: var(--fs-p-lg);
     line-height: 1.5;
+    background: linear-gradient(180deg, #fafaf9 0%, #f5f5f4 100%);
+    min-height: 100vh;
   }
 
   /* Headline typography - PP Mondwest */
@@ -216,7 +217,7 @@
   }
 }
 
-/* Brutalist shadow utility */
+/* Soft shadow utilities */
 @layer utilities {
   /* Font size utilities */
   .text-p-sm {
@@ -244,20 +245,39 @@
     line-height: 1.1;
   }
 
-  .shadow-brutal {
-    box-shadow: 4px 4px 0 #000;
+  /* Soft shadows - warm and friendly */
+  .shadow-soft {
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.08);
   }
 
-  .shadow-brutal-sm {
-    box-shadow: 2px 2px 0 #000;
+  .shadow-soft-sm {
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06);
   }
 
-  .shadow-brutal-white {
-    box-shadow: 4px 4px 0 #fff;
+  .shadow-soft-lg {
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
   }
 
-  .shadow-brutal-white-sm {
-    box-shadow: 2px 2px 0 #fff;
+  .shadow-soft-xl {
+    box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.16);
+  }
+
+  /* Warm glow shadows */
+  .shadow-warm {
+    box-shadow: 0 4px 14px 0 rgba(234, 88, 12, 0.15);
+  }
+
+  .shadow-warm-lg {
+    box-shadow: 0 8px 24px 0 rgba(234, 88, 12, 0.2);
+  }
+
+  /* Gradient backgrounds */
+  .bg-gradient-warm {
+    background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+  }
+
+  .bg-gradient-score {
+    background: linear-gradient(135deg, #22c55e 0%, #84cc16 50%, #eab308 100%);
   }
 
   /* Border emphasis */
@@ -385,16 +405,16 @@
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
-/* Focus states - brutalist style */
+/* Focus states - warm glow */
 :focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid #ea580c;
   outline-offset: 2px;
 }
 
 /* Selection */
 ::selection {
-  background: #fff;
-  color: #000;
+  background: #fed7aa;
+  color: #9a3412;
 }
 
 /* Scrollbar styling */
@@ -404,14 +424,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: #f5f5f4;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #404040;
-  border: 1px solid #000;
+  background: #d6d3d1;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #525252;
+  background: #a8a29e;
 }

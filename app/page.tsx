@@ -96,9 +96,10 @@ export default function HomePage() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background text-foreground antialiased">
-      {/* Subtle background glow */}
+      {/* Warm gradient background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white/[0.02] blur-[150px]"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-orange-100/40 via-amber-50/30 to-transparent blur-[100px]"></div>
+        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-rose-100/30 via-orange-50/20 to-transparent blur-[120px]"></div>
       </div>
 
       <Header
@@ -117,13 +118,13 @@ export default function HomePage() {
           <div className="container mx-auto max-w-7xl px-content">
             <div className="max-w-3xl mx-auto text-center relative z-10">
               <h1 className="headline text-h-xl font-normal tracking-tight text-balance">
-                <span className="text-white">Scan. </span>
-                <span className="text-muted-foreground">Score. </span>
-                <span className="text-white">Decide.</span>
+                <span className="text-foreground">Scan. </span>
+                <span className="text-primary">Score. </span>
+                <span className="text-foreground">Decide.</span>
               </h1>
               <p className="mt-6 max-w-xl mx-auto text-p-lg text-muted-foreground text-pretty px-4 sm:px-0">
                 The AI-powered app for health-scoring{" "}
-                <span className="font-medium text-white">everything.</span>{" "}
+                <span className="font-medium text-foreground">everything.</span>{" "}
                 Instantly understand the impact of any product on your well-being.
               </p>
               <SearchBar onSearch={handleSearch} isLoading={isLoading} />
@@ -170,7 +171,7 @@ export default function HomePage() {
             substitute for professional medical or nutritional advice. Always verify product information with the
             manufacturer.
           </p>
-          <p className="text-white">&copy; 2025 FeelScan. All rights reserved.</p>
+          <p className="text-foreground">&copy; 2025 FeelScan. All rights reserved.</p>
         </div>
       </footer>
 

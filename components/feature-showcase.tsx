@@ -39,21 +39,21 @@ function FeatureCard({ feature, index }: { feature: (typeof features)[0]; index:
   return (
     <Card
       ref={cardRef}
-      className={`${feature.className} relative overflow-hidden group cursor-pointer transition-all duration-100 hover:shadow-brutal-white border-2 border-border hover:border-white`}
+      className={`${feature.className} relative overflow-hidden group cursor-pointer transition-all duration-150 hover:shadow-soft-lg border border-border hover:border-primary/30 rounded-xl`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden rounded-xl">
         <img
           src={feature.image || "/placeholder.svg"}
           alt={feature.title}
-          className="w-full h-full object-cover opacity-60 transition-all duration-100 group-hover:opacity-80 group-hover:scale-[1.02]"
+          className="w-full h-full object-cover opacity-80 transition-all duration-150 group-hover:opacity-90 group-hover:scale-[1.02]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/90 via-stone-900/40 to-transparent" />
       </div>
 
       <div className="absolute top-3 right-3">
-        <span className="inline-flex items-center px-2 py-1 text-p-sm font-medium uppercase tracking-wider bg-white text-black border-2 border-white">
+        <span className="inline-flex items-center px-2 py-1 text-p-sm font-medium uppercase tracking-wider bg-primary text-primary-foreground rounded-full shadow-soft-sm">
           Soon
         </span>
       </div>
@@ -62,7 +62,7 @@ function FeatureCard({ feature, index }: { feature: (typeof features)[0]; index:
         <h3 className="headline font-normal text-h-sm mb-1">
           {feature.title}
         </h3>
-        <p className="text-p-sm text-white/70 leading-relaxed line-clamp-2">
+        <p className="text-p-sm text-white/80 leading-relaxed line-clamp-2">
           {feature.description}
         </p>
       </div>
@@ -74,7 +74,7 @@ export function FeatureShowcase() {
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="headline text-h-lg font-normal text-white mb-3">Coming Soon</h2>
+        <h2 className="headline text-h-lg font-normal text-foreground mb-3">Coming Soon</h2>
         <p className="text-muted-foreground text-p-lg">Exciting features in development to enhance your health journey</p>
       </div>
 
