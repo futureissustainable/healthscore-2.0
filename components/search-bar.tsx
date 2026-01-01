@@ -79,14 +79,14 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
 
   return (
     <form onSubmit={handleSubmit} className="relative mt-8 sm:mt-10 max-w-xl mx-auto">
-      {/* Subtle glow effect */}
-      <div className="absolute -inset-4 bg-white/[0.03] blur-[60px] -z-10"></div>
+      {/* Warm glow effect */}
+      <div className="absolute -inset-4 bg-primary/5 blur-[60px] -z-10"></div>
 
       <div
-        className={`relative z-10 flex items-center w-full border-2 p-1 transition-all duration-100 ${
+        className={`relative z-10 flex items-center w-full border p-1 rounded-xl transition-all duration-150 shadow-soft ${
           isLimitReached
             ? "bg-muted/20 border-muted"
-            : "bg-background border-border hover:border-muted-foreground focus-within:border-white"
+            : "bg-card border-border hover:border-primary/50 focus-within:border-primary focus-within:shadow-warm"
         }`}
       >
         <input
@@ -94,10 +94,10 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           disabled={isLoading || isCapturing || isLimitReached}
-          className={`flex-1 w-full h-12 sm:h-10 bg-transparent outline-none px-4 text-base sm:text-sm ${
+          className={`flex-1 w-full h-12 sm:h-10 bg-transparent outline-none px-4 text-base sm:text-sm rounded-lg ${
             isLimitReached
               ? "text-muted cursor-not-allowed placeholder-muted"
-              : "text-white placeholder-muted-foreground"
+              : "text-foreground placeholder-muted-foreground"
           }`}
           placeholder={isMobile ? "Product name or take photo" : "e.g., 'Cheerios', 'Avocado', or 'Head and Shoulders'"}
         />
@@ -115,10 +115,10 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
           aria-label={isLimitReached ? "Daily limit reached" : isCapturing ? "Processing image..." : "Take photo"}
           onClick={handleCameraClick}
           disabled={isLoading || isCapturing || isLimitReached}
-          className={`ml-1 p-3 sm:p-2 transition-all duration-100 touch-manipulation border ${
+          className={`ml-1 p-3 sm:p-2 transition-all duration-150 touch-manipulation rounded-lg ${
             isLimitReached
-              ? "bg-muted border-muted text-muted-foreground cursor-not-allowed"
-              : "bg-white border-white text-black hover:bg-transparent hover:text-white active:translate-x-[1px] active:translate-y-[1px] disabled:bg-muted disabled:border-muted disabled:text-muted-foreground"
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 disabled:bg-muted disabled:text-muted-foreground shadow-soft-sm"
           }`}
         >
           <CameraIcon className={`w-5 h-5 ${isCapturing ? "animate-pulse" : ""}`} />
@@ -126,7 +126,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
       </div>
       {isCapturing && (
         <div className="absolute top-full left-0 right-0 mt-3 text-center z-10">
-          <p className="text-sm text-muted-foreground bg-accent border border-border py-2 px-4 inline-block">
+          <p className="text-sm text-muted-foreground bg-card border border-border rounded-lg py-2 px-4 inline-block shadow-soft-sm">
             Processing image...
           </p>
         </div>

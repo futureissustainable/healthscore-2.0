@@ -57,19 +57,19 @@ export function UsageIndicator() {
 
   return (
     <div
-      className={`inline-flex items-center gap-3 px-4 py-2 border text-sm ${
+      className={`inline-flex items-center gap-3 px-4 py-2 border rounded-full text-sm shadow-soft-sm ${
         isLimitReached
-          ? "bg-red-500/10 border-red-500 text-red-500"
-          : "bg-accent/50 border-border text-muted-foreground"
+          ? "bg-red-50 border-red-200 text-red-600"
+          : "bg-card border-border text-muted-foreground"
       }`}
     >
       <div className="flex items-center gap-2">
-        <span className="font-medium text-white">Free</span>
-        <span className="text-muted">•</span>
+        <span className="font-medium text-foreground">Free</span>
+        <span className="text-muted-foreground">•</span>
         {isLimitReached ? (
           <span className="font-medium text-red-500">Daily limit reached - resets at midnight</span>
         ) : (
-          <span className={`font-medium ${isNearLimit ? "text-red-500" : "text-white"}`}>
+          <span className={`font-medium ${isNearLimit ? "text-red-500" : "text-foreground"}`}>
             {usage.remaining} daily scans
           </span>
         )}
@@ -77,10 +77,10 @@ export function UsageIndicator() {
 
       {!isLimitReached && (
         <div className="flex items-center gap-2">
-          <div className="w-16 bg-border h-1">
+          <div className="w-16 bg-border h-1.5 rounded-full overflow-hidden">
             <div
-              className={`h-1 transition-all duration-100 ${
-                isNearLimit ? "bg-red-500" : percentage > 70 ? "bg-yellow-400" : "bg-green-500"
+              className={`h-1.5 transition-all duration-150 rounded-full ${
+                isNearLimit ? "bg-red-500" : percentage > 70 ? "bg-yellow-500" : "bg-green-500"
               }`}
               style={{ width: `${Math.min(percentage, 100)}%` }}
             />
