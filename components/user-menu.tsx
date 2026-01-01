@@ -24,7 +24,6 @@ export function UserMenu({
 
   const handleSignIn = async () => {
     setIsLoading(true)
-    // Use email sign in for simplicity
     const email = prompt("Enter your email address:")
     if (email) {
       await signIn("credentials", { email, redirect: false })
@@ -51,7 +50,7 @@ export function UserMenu({
 
   if (status === "loading") {
     return (
-      <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse" />
+      <div className="w-8 h-8 border border-border bg-accent animate-pulse" />
     )
   }
 
@@ -60,7 +59,6 @@ export function UserMenu({
       <Button
         onClick={handleSignIn}
         disabled={isLoading}
-        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
       >
         {isLoading ? "Signing in..." : "Sign In"}
       </Button>
@@ -71,17 +69,17 @@ export function UserMenu({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 p-1 rounded-full hover:bg-slate-100 transition-colors"
+        className="flex items-center space-x-2 p-1 border border-border hover:border-white transition-colors duration-100"
       >
         {session.user?.image ? (
           <img
             src={session.user.image}
             alt={session.user.name || "User"}
-            className="w-8 h-8 rounded-full"
+            className="w-8 h-8"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-            <User className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 bg-white flex items-center justify-center">
+            <User className="w-4 h-4 text-black" />
           </div>
         )}
       </button>
@@ -92,22 +90,22 @@ export function UserMenu({
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden">
-            <div className="p-4 border-b border-slate-100 bg-gradient-to-br from-slate-50 to-white">
-              <p className="font-medium text-slate-900 truncate">
+          <div className="absolute right-0 mt-2 w-64 bg-background border border-border shadow-brutal-white z-50 overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <p className="font-medium text-white truncate">
                 {session.user?.name || session.user?.email}
               </p>
-              <p className="text-sm text-slate-500 truncate">
+              <p className="text-sm text-muted-foreground truncate">
                 {session.user?.email}
               </p>
               <div className="mt-2">
                 <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                  className={`inline-flex items-center px-2 py-0.5 border text-xs font-medium uppercase tracking-wider ${
                     session.user?.planId === "premium"
-                      ? "bg-purple-100 text-purple-700"
+                      ? "border-purple-500 text-purple-500"
                       : session.user?.planId === "pro"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-slate-100 text-slate-700"
+                        ? "border-green-500 text-green-500"
+                        : "border-muted-foreground text-muted-foreground"
                   }`}
                 >
                   {session.user?.planId === "premium"
@@ -125,9 +123,9 @@ export function UserMenu({
                   onOpenHistory?.()
                   setIsOpen(false)
                 }}
-                className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center space-x-3"
+                className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-white flex items-center space-x-3 transition-colors duration-100"
               >
-                <History className="w-4 h-4 text-slate-500" />
+                <History className="w-4 h-4" />
                 <span>Scan History</span>
               </button>
 
@@ -136,9 +134,9 @@ export function UserMenu({
                   onOpenFavorites?.()
                   setIsOpen(false)
                 }}
-                className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center space-x-3"
+                className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-white flex items-center space-x-3 transition-colors duration-100"
               >
-                <Heart className="w-4 h-4 text-slate-500" />
+                <Heart className="w-4 h-4" />
                 <span>Favorites</span>
               </button>
 
@@ -147,9 +145,9 @@ export function UserMenu({
                   onOpenPreferences?.()
                   setIsOpen(false)
                 }}
-                className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center space-x-3"
+                className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-white flex items-center space-x-3 transition-colors duration-100"
               >
-                <Settings className="w-4 h-4 text-slate-500" />
+                <Settings className="w-4 h-4" />
                 <span>Preferences</span>
               </button>
 
@@ -159,9 +157,9 @@ export function UserMenu({
                     handleBillingPortal()
                     setIsOpen(false)
                   }}
-                  className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center space-x-3"
+                  className="w-full px-4 py-2.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-white flex items-center space-x-3 transition-colors duration-100"
                 >
-                  <CreditCard className="w-4 h-4 text-slate-500" />
+                  <CreditCard className="w-4 h-4" />
                   <span>Manage Subscription</span>
                 </button>
               )}
@@ -172,7 +170,7 @@ export function UserMenu({
                     onOpenPricing?.()
                     setIsOpen(false)
                   }}
-                  className="w-full px-4 py-2.5 text-left text-sm text-green-600 hover:bg-green-50 flex items-center space-x-3"
+                  className="w-full px-4 py-2.5 text-left text-sm text-green-500 hover:bg-green-500/10 flex items-center space-x-3 transition-colors duration-100"
                 >
                   <CreditCard className="w-4 h-4" />
                   <span>Upgrade Plan</span>
@@ -180,10 +178,10 @@ export function UserMenu({
               )}
             </div>
 
-            <div className="py-2 border-t border-slate-100">
+            <div className="py-2 border-t border-border">
               <button
                 onClick={handleSignOut}
-                className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-3"
+                className="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-500/10 flex items-center space-x-3 transition-colors duration-100"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>

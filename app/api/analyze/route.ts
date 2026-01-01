@@ -110,7 +110,7 @@ async function analyzeProductWithGemini(textInput: string, base64Image?: string)
 
   const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`
 
-  const prompt = `You are ULTRASCORE, analyzing consumer products for health. Respond ONLY with valid JSON in this exact format:
+  const prompt = `You are FeelScan, an AI health analyst analyzing consumer products. Respond ONLY with valid JSON in this exact format:
 {
   "isConsumerProduct": boolean,
   "isBestInClass": boolean,
