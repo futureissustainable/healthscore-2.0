@@ -113,7 +113,7 @@ export default function HomePage() {
         <section className="pt-24 pb-12 sm:pt-32 sm:pb-16 md:pt-40 md:pb-20">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6">
             <div className="max-w-3xl mx-auto text-center relative z-10">
-              <h1 className="text-3xl leading-tight sm:text-4xl sm:leading-snug md:text-5xl lg:text-6xl font-bold tracking-tighter text-balance">
+              <h1 className="headline text-h-xl tracking-tight text-balance">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-orange-500">
                   Scan.{" "}
                 </span>
@@ -124,8 +124,8 @@ export default function HomePage() {
                   Decide.
                 </span>
               </h1>
-              <p className="mt-4 max-w-xl mx-auto text-base sm:text-lg text-slate-600 text-pretty px-4 sm:px-0">
-                The AI-powered app for health-scoring <span className="font-bold text-slate-700">everything. </span>
+              <p className="mt-grid-4 max-w-xl mx-auto text-p-lg text-slate-600 text-pretty px-4 sm:px-0">
+                The AI-powered app for health-scoring <span className="font-semibold text-slate-700">everything. </span>
                 Instantly understand the impact of any product on your well-being.
               </p>
               <SearchBar onSearch={handleSearch} isLoading={isLoading} />

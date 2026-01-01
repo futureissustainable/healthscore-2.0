@@ -1,9 +1,53 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Custom Fonts */
+@font-face {
+  font-family: 'PP Mondwest';
+  src: url('/PPMondwest-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Albert Sans';
+  src: url('/AlbertSans-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Typography - Font Sizes */
+  --fs-p-sm: 14px;   /* UI text, labels, buttons, metadata */
+  --fs-p-lg: 16px;   /* Body text, descriptions */
+  --fs-h-sm: 24px;   /* Section titles, card headers */
+  --fs-h-lg: 32px;   /* Page titles, major headings */
+  --fs-h-xl: 52px;   /* Hero headlines */
+
+  /* Spacing - 8px Grid System */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* Font Families */
+  --font-headline: 'PP Mondwest', serif;
+  --font-body: 'Albert Sans', sans-serif;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -37,7 +81,6 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --font-general-sans: "General Sans", sans-serif; /* Added font configuration */
 }
 
 .dark {
@@ -76,8 +119,8 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-general-sans); /* Updated font configuration to use General Sans */
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-mono: 'SF Mono', 'Monaco', 'Consolas', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -120,8 +163,36 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    font-size: 16px;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    font-size: var(--fs-p-lg);
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+  }
+
+  /* Headlines use PP Mondwest */
+  h1, h2, h3, h4, h5, h6,
+  .headline {
+    font-family: var(--font-headline);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h1 { font-size: var(--fs-h-xl); }
+  h2 { font-size: var(--fs-h-lg); }
+  h3 { font-size: var(--fs-h-sm); }
+  h4, h5, h6 { font-size: var(--fs-p-lg); }
+
+  /* Body text uses Albert Sans */
+  p, span, div, li, td, th, label, input, textarea, select, button {
+    font-family: var(--font-body);
   }
 }
 
@@ -174,8 +245,75 @@
   background-image: radial-gradient(circle, var(--tw-gradient-stops));
 }
 
-/* Added mobile-specific utilities and improvements */
+/* Typography and spacing utilities */
 @layer utilities {
+  /* Font size utilities */
+  .text-p-sm {
+    font-size: var(--fs-p-sm);
+    line-height: 1.5;
+  }
+
+  .text-p-lg {
+    font-size: var(--fs-p-lg);
+    line-height: 1.5;
+  }
+
+  .text-h-sm {
+    font-size: var(--fs-h-sm);
+    line-height: 1.2;
+  }
+
+  .text-h-lg {
+    font-size: var(--fs-h-lg);
+    line-height: 1.15;
+  }
+
+  .text-h-xl {
+    font-size: var(--fs-h-xl);
+    line-height: 1.1;
+  }
+
+  /* Font family utilities */
+  .font-headline {
+    font-family: var(--font-headline);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  /* Spacing utilities using 8px grid */
+  .gap-grid-1 { gap: var(--space-1); }
+  .gap-grid-2 { gap: var(--space-2); }
+  .gap-grid-3 { gap: var(--space-3); }
+  .gap-grid-4 { gap: var(--space-4); }
+  .gap-grid-6 { gap: var(--space-6); }
+  .gap-grid-8 { gap: var(--space-8); }
+
+  .p-grid-2 { padding: var(--space-2); }
+  .p-grid-3 { padding: var(--space-3); }
+  .p-grid-4 { padding: var(--space-4); }
+  .p-grid-6 { padding: var(--space-6); }
+  .p-grid-8 { padding: var(--space-8); }
+
+  .py-grid-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+  .py-grid-6 { padding-top: var(--space-6); padding-bottom: var(--space-6); }
+  .py-grid-8 { padding-top: var(--space-8); padding-bottom: var(--space-8); }
+  .py-grid-10 { padding-top: var(--space-10); padding-bottom: var(--space-10); }
+  .py-grid-12 { padding-top: var(--space-12); padding-bottom: var(--space-12); }
+
+  .px-grid-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+  .px-grid-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
+
+  .mt-grid-2 { margin-top: var(--space-2); }
+  .mt-grid-4 { margin-top: var(--space-4); }
+  .mt-grid-6 { margin-top: var(--space-6); }
+  .mt-grid-8 { margin-top: var(--space-8); }
+
+  .mb-grid-4 { margin-bottom: var(--space-4); }
+  .mb-grid-6 { margin-bottom: var(--space-6); }
+  .mb-grid-8 { margin-bottom: var(--space-8); }
+
   .line-clamp-1 {
     overflow: hidden;
     display: -webkit-box;
@@ -197,9 +335,15 @@
 
 /* Mobile-specific improvements */
 @media (max-width: 640px) {
+  :root {
+    --fs-h-xl: 36px;  /* Smaller hero on mobile */
+    --fs-h-lg: 28px;
+    --fs-h-sm: 20px;
+  }
+
   .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
   }
 
   /* Improve touch targets */
