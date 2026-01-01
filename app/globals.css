@@ -1,83 +1,114 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* FeelScan Design System
+   Philosophy: Apple-style warm, brutalist, neo-swiss, friendly
+   Anti-design design, Neo-brutalism meets classical reverence
+   Cottagecore meets Silicon Valley */
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --font-general-sans: "General Sans", sans-serif; /* Added font configuration */
+/* Custom fonts */
+@font-face {
+  font-family: 'PP Mondwest';
+  src: url('/PPMondwest-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+@font-face {
+  font-family: 'Albert Sans';
+  src: url('/AlbertSans-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Dark mode as default - no .dark class needed */
+:root {
+  /* Core Colors - Dark Mode Default */
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #525252;
+  --secondary-foreground: #ffffff;
+  --muted: #525252;
+  --muted-foreground: #a3a3a3;
+  --accent: #404040;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #404040;
+  --input: #404040;
+  --ring: #a3a3a3;
+
+  /* Card colors */
+  --card: #000000;
+  --card-foreground: #ffffff;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+
+  /* Sidebar */
+  --sidebar: #000000;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #404040;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #404040;
+  --sidebar-ring: #a3a3a3;
+
+  /* Chart colors */
+  --chart-1: #22c55e;
+  --chart-2: #eab308;
+  --chart-3: #f97316;
+  --chart-4: #ef4444;
+  --chart-5: #a3a3a3;
+
+  /* Brutalist: No border radius */
+  --radius: 0;
+
+  /* Font families */
+  --font-headline: 'PP Mondwest', serif;
+  --font-body: 'Albert Sans', sans-serif;
+
+  /* Font sizes */
+  --fs-p-sm: 14px;   /* UI text, labels, buttons, metadata */
+  --fs-p-lg: 16px;   /* Body text, descriptions */
+  --fs-h-sm: 24px;   /* Section titles, card headers */
+  --fs-h-lg: 32px;   /* Page titles, major headings */
+  --fs-h-xl: 52px;   /* Hero headlines */
+
+  /* Typography */
+  --tracking: -0.02em;
+}
+
+/* Light mode override (only when explicitly set) */
+.light {
+  --background: #ffffff;
+  --foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #a3a3a3;
+  --secondary-foreground: #000000;
+  --muted: #a3a3a3;
+  --muted-foreground: #525252;
+  --accent: #e5e5e5;
+  --accent-foreground: #000000;
+  --border: #404040;
+  --input: #404040;
+  --ring: #525252;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
 }
 
 @theme inline {
-  --font-sans: var(--font-general-sans); /* Updated font configuration to use General Sans */
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-mono: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  --font-headline: var(--font-headline);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -102,10 +133,6 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -114,68 +141,141 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Brutalist radius - always 0 */
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+    letter-spacing: -0.02em;
   }
+
+  html {
+    color-scheme: dark;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: var(--fs-p-lg);
+    line-height: 1.5;
+  }
+
+  /* Headline typography - PP Mondwest */
+  h1, h2, h3, h4, h5, h6,
+  .headline {
+    font-family: var(--font-headline);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
+  /* Heading sizes using new scale */
+  h1 {
+    font-size: var(--fs-h-xl);
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-size: var(--fs-h-lg);
+    line-height: 1.15;
+  }
+
+  h3 {
+    font-size: var(--fs-h-sm);
+    line-height: 1.2;
+  }
+
+  h4 {
+    font-size: var(--fs-p-lg);
+    line-height: 1.4;
+  }
+
+  /* Paragraph typography - Albert Sans */
+  p, span, div, li, a, button, input, textarea, label {
+    font-family: var(--font-body);
+  }
+
+  /* Small text */
+  small, .text-sm {
+    font-size: var(--fs-p-sm);
   }
 }
 
-/* Removed heavy custom animations and simplified CSS */
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-/* Added performance-optimized gradient and glow animations */
-@keyframes gradientShift {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
+/* Mobile heading sizes */
+@media (max-width: 640px) {
+  :root {
+    --fs-h-xl: 32px;
+    --fs-h-lg: 24px;
+    --fs-h-sm: 18px;
   }
 }
 
-@keyframes subtleGlow {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 0.15;
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
-}
-
-/* Added custom animation classes for gradient and glow effects */
-.animate-gradientShift {
-  background-size: 200% 200%;
-  animation: gradientShift 12s ease-in-out infinite; /* slowed down gradientShift animation from 8s to 12s (50% slower) */
-}
-
-.animate-subtleGlow {
-  animation: subtleGlow 3s ease-in-out infinite;
-}
-
-.bg-gradient-radial {
-  background-image: radial-gradient(circle, var(--tw-gradient-stops));
-}
-
-/* Added mobile-specific utilities and improvements */
+/* Brutalist shadow utility */
 @layer utilities {
+  /* Font size utilities */
+  .text-p-sm {
+    font-size: var(--fs-p-sm);
+    line-height: 1.5;
+  }
+
+  .text-p-lg {
+    font-size: var(--fs-p-lg);
+    line-height: 1.5;
+  }
+
+  .text-h-sm {
+    font-size: var(--fs-h-sm);
+    line-height: 1.2;
+  }
+
+  .text-h-lg {
+    font-size: var(--fs-h-lg);
+    line-height: 1.15;
+  }
+
+  .text-h-xl {
+    font-size: var(--fs-h-xl);
+    line-height: 1.1;
+  }
+
+  .shadow-brutal {
+    box-shadow: 4px 4px 0 #000;
+  }
+
+  .shadow-brutal-sm {
+    box-shadow: 2px 2px 0 #000;
+  }
+
+  .shadow-brutal-white {
+    box-shadow: 4px 4px 0 #fff;
+  }
+
+  .shadow-brutal-white-sm {
+    box-shadow: 2px 2px 0 #fff;
+  }
+
+  /* Border emphasis */
+  .border-emphasis {
+    border-width: 2px;
+  }
+
+  /* Spacing utilities */
+  .px-content {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
+  .px-bleed {
+    padding-left: 3%;
+    padding-right: 3%;
+  }
+
   .line-clamp-1 {
     overflow: hidden;
     display: -webkit-box;
@@ -195,9 +295,14 @@
   }
 }
 
-/* Mobile-specific improvements */
+/* Mobile spacing */
 @media (max-width: 640px) {
   .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .container img {
     padding-left: 1rem;
     padding-right: 1rem;
   }
@@ -223,4 +328,90 @@
   select {
     font-size: 16px;
   }
+}
+
+/* Animations - Fast and precise */
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 150ms cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 150ms cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Transition defaults */
+.transition-fast {
+  transition-duration: 100ms;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.transition-base {
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Focus states - brutalist style */
+:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: #fff;
+  color: #000;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #404040;
+  border: 1px solid #000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #525252;
 }

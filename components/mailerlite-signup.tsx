@@ -52,15 +52,15 @@ export function MailerLiteSignup() {
   if (isSuccess) {
     return (
       <div className="max-w-lg mx-auto">
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200/60 rounded-2xl p-8 shadow-sm animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
+        <div className="bg-green-500/10 border-2 border-green-500 p-8 animate-fade-in">
           <div className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 border-2 border-green-500 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-green-900 mb-2">You're all set!</h3>
-            <p className="text-green-700/80 text-sm leading-relaxed">
+            <h3 className="headline text-h-sm font-normal text-white mb-2">You're all set!</h3>
+            <p className="text-muted-foreground text-p-sm leading-relaxed">
               We'll keep you updated on the full release and new features.
             </p>
           </div>
@@ -72,24 +72,22 @@ export function MailerLiteSignup() {
   return (
     <div className="max-w-lg mx-auto">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-xs font-medium mb-4">
-          <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+        <div className="inline-flex items-center gap-2 border border-white text-white px-3 py-1 text-p-sm font-medium uppercase tracking-wider mb-4">
+          <div className="w-2 h-2 bg-white animate-pulse-glow"></div>
           Early Access
         </div>
-        <h3 className="text-2xl font-bold text-slate-900 mb-3 text-balance">Sign up for updates on full release!</h3>
-        <p className="text-slate-600 text-sm leading-relaxed max-w-md mx-auto">
+        <h3 className="headline text-h-lg font-normal text-white mb-3 text-balance">Sign up for updates on full release!</h3>
+        <p className="text-muted-foreground text-p-sm leading-relaxed max-w-md mx-auto">
           Be the first to know when we launch new features and improvements. Help us build the perfect nutrition
           companion.
         </p>
       </div>
 
       <div className="relative">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 via-red-400 to-orange-400 rounded-2xl opacity-75 group-hover:opacity-90 animate-subtleGlow blur-sm transition-opacity duration-500"></div>{" "}
-        {/* increased opacity from 0/20 to 75/90 for much higher visibility */}
-        <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl p-6 shadow-sm relative group">
+        <div className="border border-border bg-background p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1">
-              <label htmlFor="email" className="text-sm font-medium text-slate-700">
+              <label htmlFor="email" className="text-p-sm font-medium text-white">
                 Email address
               </label>
               <Input
@@ -100,13 +98,12 @@ export function MailerLiteSignup() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="h-11 border-slate-200 focus:border-orange-300 focus:ring-orange-200"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label htmlFor="accuracy" className="text-sm font-medium text-slate-700">
+                <label htmlFor="accuracy" className="text-sm font-medium text-white">
                   Accuracy rating
                 </label>
                 <div className="relative">
@@ -119,37 +116,37 @@ export function MailerLiteSignup() {
                     min="0"
                     max="100"
                     disabled={isLoading}
-                    className="h-11 border-slate-200 focus:border-orange-300 focus:ring-orange-200 pr-8"
+                    className="pr-8"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">%</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="feature-priority" className="text-sm font-medium text-slate-700">
+                <label htmlFor="feature-priority" className="text-sm font-medium text-white">
                   Most needed feature
                 </label>
                 <select
                   id="feature-priority"
-                  className="h-11 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:border-orange-300 focus:ring-orange-200 focus:outline-none focus:ring-2 focus:ring-offset-0"
+                  className="h-10 w-full border border-border bg-transparent px-4 py-2 text-sm text-white focus:border-white focus:outline-2 focus:outline-white focus:outline-offset-2 transition-colors duration-100"
                   disabled={isLoading}
                   value={featurePriority}
                   onChange={(e) => setFeaturePriority(e.target.value)}
                 >
-                  <option value="">Select feature</option>
-                  <option value="meal-planner">Meal Planner</option>
-                  <option value="preferences">Dietary Preferences</option>
-                  <option value="community">Community Features</option>
-                  <option value="discover">Discover New Foods</option>
-                  <option value="history">Scan History</option>
-                  <option value="favourites">Favourites List</option>
-                  <option value="detailed-analysis">More In-Depth Analysis</option>
+                  <option value="" className="bg-background">Select feature</option>
+                  <option value="meal-planner" className="bg-background">Meal Planner</option>
+                  <option value="preferences" className="bg-background">Dietary Preferences</option>
+                  <option value="community" className="bg-background">Community Features</option>
+                  <option value="discover" className="bg-background">Discover New Foods</option>
+                  <option value="history" className="bg-background">Scan History</option>
+                  <option value="favourites" className="bg-background">Favourites List</option>
+                  <option value="detailed-analysis" className="bg-background">More In-Depth Analysis</option>
                 </select>
               </div>
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="feedback" className="text-sm font-medium text-slate-700">
+              <label htmlFor="feedback" className="text-sm font-medium text-white">
                 Why do you need this feature?
               </label>
               <Textarea
@@ -159,18 +156,17 @@ export function MailerLiteSignup() {
                 onChange={(e) => setFeedback(e.target.value)}
                 disabled={isLoading}
                 rows={3}
-                className="border-slate-200 focus:border-orange-300 focus:ring-orange-200 resize-none"
               />
             </div>
 
             <Button
               type="submit"
               disabled={isLoading || !email}
-              className="w-full h-11 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full"
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-black/30 border-t-black animate-spin"></div>
                   Signing up...
                 </div>
               ) : (
@@ -179,15 +175,15 @@ export function MailerLiteSignup() {
             </Button>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-700 text-sm text-center">{error}</p>
+              <div className="border-2 border-red-500 bg-red-500/10 p-3">
+                <p className="text-red-500 text-sm text-center">{error}</p>
               </div>
             )}
           </form>
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-6 mt-6 text-xs text-slate-500">
+      <div className="flex items-center justify-center gap-6 mt-6 text-xs text-muted-foreground">
         <div className="flex items-center gap-1">
           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
             <path
