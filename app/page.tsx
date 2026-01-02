@@ -114,13 +114,13 @@ export default function HomePage() {
           <div className="container mx-auto max-w-7xl px-4 sm:px-6">
             <div className="max-w-3xl mx-auto text-center relative z-10">
               <h1 className="headline text-h-xl tracking-tight text-balance">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-orange-500">
+                <span className="inline-block bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent [-webkit-background-clip:text]">
                   Scan.{" "}
                 </span>
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-amber-500">
+                <span className="inline-block bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent [-webkit-background-clip:text]">
                   Score.{" "}
                 </span>
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-lime-500 to-green-600">
+                <span className="inline-block bg-gradient-to-r from-lime-500 to-green-600 bg-clip-text text-transparent [-webkit-background-clip:text]">
                   Decide.
                 </span>
               </h1>
@@ -172,7 +172,7 @@ export default function HomePage() {
             substitute for professional medical or nutritional advice. Always verify product information with the
             manufacturer.
           </p>
-          <p>&copy; 2025 HEALTHSCORE Inc. All rights reserved.</p>
+          <p>&copy; 2025 FeelScan. All rights reserved.</p>
         </div>
       </footer>
 

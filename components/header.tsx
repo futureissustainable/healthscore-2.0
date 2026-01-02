@@ -27,14 +27,7 @@ export function Header({
     <header className={`absolute top-0 left-0 right-0 z-20 ${className}`}>
       <nav className="container mx-auto max-w-7xl px-6 py-6 flex justify-between items-center">
         <div className="flex flex-col">
-          <div className="flex items-center gap-grid-3">
-            <img
-              src="https://cdn.prod.website-files.com/68724770b6ac4d56582886e7/68c9ac09ebd0fa4f4e6426b6_Healthscore%20logo.avif"
-              alt="Healthscore Logo"
-              className="h-8 w-auto"
-            />
-            <span className="headline text-h-sm text-slate-900 tracking-tight">HEALTHSCORE</span>
-          </div>
+          <span className="headline text-h-sm text-slate-900 tracking-tight uppercase">FEELSCAN</span>
           <div className="text-p-sm text-slate-500 tracking-wider mt-grid-1">BETA</div>
         </div>
 
